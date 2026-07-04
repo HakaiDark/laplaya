@@ -71,9 +71,9 @@
 <div aria-hidden="true" style="position:fixed; width:2px; height:2px; top:-10px; left:-10px; opacity:0; pointer-events:none; overflow:hidden;">
   <!-- crêpe loads eagerly (it's the hero); waffle+smoothie defer to when you scroll into their
        chapters — cuts initial load from ~12MB to ~4MB, a big win on slow connections. -->
-  <video id="vid-crepe" src="assets/video-crepe.mp4?v=2" muted loop playsinline preload="auto"></video>
-  <video id="vid-waffle" src="assets/video-waffle.mp4?v=2" muted loop playsinline preload="metadata"></video>
-  <video id="vid-smoothie" src="assets/video-smoothie.mp4?v=2" muted loop playsinline preload="metadata"></video>
+  <video id="vid-crepe" src="assets/video-crepe.mp4?v=3" muted loop playsinline preload="auto"></video>
+  <video id="vid-waffle" src="assets/video-waffle.mp4?v=3" muted loop playsinline preload="metadata"></video>
+  <video id="vid-smoothie" src="assets/video-smoothie.mp4?v=3" muted loop playsinline preload="metadata"></video>
 </div>
 
 <!-- ============ WEBGL CANVAS (fixed world behind everything) ============ -->
@@ -780,7 +780,7 @@ class Component extends DCLogic {
     if (cv) cv.style.display = 'none';
     if (!host) return;
     host.style.display = 'block';
-    var srcs = ['assets/video-crepe.mp4?v=2', 'assets/video-waffle.mp4?v=2', 'assets/video-smoothie.mp4?v=2'];
+    var srcs = ['assets/video-crepe.mp4?v=3', 'assets/video-waffle.mp4?v=3', 'assets/video-smoothie.mp4?v=3'];
     host.innerHTML = srcs.map(function (s, i) {
       return '<video src="' + s + '" muted loop playsinline autoplay style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:' + (i === 0 ? 1 : 0) + '; transition:opacity 1.1s ease; filter:saturate(1.05) contrast(1.02);"></video>';
     }).join('') + '<div style="position:absolute; inset:0; background:linear-gradient(180deg,rgba(12,44,54,.25),rgba(12,44,54,.12) 40%,rgba(12,44,54,.4));"></div>';
