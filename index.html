@@ -665,7 +665,7 @@ class Component extends DCLogic {
   _fitValue() {
     var ra = window.innerWidth / window.innerHeight; // viewport aspect (w/h)
     if (ra >= 0.85) return 0.0;                       // landscape / desktop: full cover, unchanged
-    return Math.min(0.62, (0.85 - ra) * 1.15);        // taller & narrower => reveal more (capped)
+    return Math.min(0.5, (0.85 - ra) * 1.0);          // taller & narrower => reveal more (capped, gentle)
   }
   _initWebGL() {
     var canvas = document.getElementById('lpb-webgl');
@@ -744,10 +744,13 @@ class Component extends DCLogic {
       // Guarded on uFit so desktop/landscape (uFit==0, no bars) skips the extra sampling entirely.
       '  if(uFit>0.001){',
       '    vec3 fill = (sc<0.5) ? blurFill(uTex0) : (sc<1.5 ? blurFill(uTex1) : blurFill(uTex2));',
-      '    float fg=dot(fill,vec3(0.299,0.587,0.114)); fill=mix(vec3(fg),fill,0.6)*0.5;',   // desaturate + dim
-      '    fill=mix(fill, vec3(0.043,0.173,0.204), 0.35);',                                  // tint toward brand teal
+      '    float fg=dot(fill,vec3(0.299,0.587,0.114)); fill=mix(vec3(fg),fill,0.62);',       // gently desaturate
+      '    fill=mix(fill, vec3(0.043,0.173,0.204), 0.32);',                                   // tint toward brand teal
+      '    float edgeDark=smoothstep(0.0,0.17,vUv.y)*smoothstep(1.0,0.83,vUv.y);',            // darker toward screen edges
+      '    fill*=mix(0.4,0.92,edgeDark);',                                                    // vignette that frames the dish
       '    vec2 fq=coverUV(vUv,uFit);',
-      '    float lb=smoothstep(0.0,0.02,fq.x)*smoothstep(1.0,0.98,fq.x)*smoothstep(0.0,0.02,fq.y)*smoothstep(1.0,0.98,fq.y);',
+      // wide feather so the sharp centre defocuses into the blur with no visible seam
+      '    float lb=smoothstep(0.0,0.075,fq.x)*smoothstep(1.0,0.925,fq.x)*smoothstep(0.0,0.075,fq.y)*smoothstep(1.0,0.925,fq.y);',
       '    col=mix(fill, col, lb);',
       '  }',
       '  gl_FragColor=vec4(col,1.0);',
