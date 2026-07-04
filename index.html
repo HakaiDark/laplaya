@@ -710,8 +710,8 @@ class Component extends DCLogic {
       'uniform float uScene, uTime, uRipple, uZoom, uCanvasAspect, uTexAspect, uReduced, uOutro, uVignette, uFit;',
       'uniform vec2 uMouse;',
       // uFit blends cover (0) -> contain (1): cover crops to fill, contain shows the whole frame.
-      'vec2 coverUV(vec2 uv){ float ra=uCanvasAspect, rt=uTexAspect; vec2 sc=vec2(1.0), sn=vec2(1.0); if(ra>rt){ sc.y=rt/ra; sn.x=ra/rt; } else { sc.x=ra/rt; sn.y=rt/ra; } vec2 s=mix(sc,sn,uFit); uv=(uv-0.5)*s/uZoom+0.5; return uv; }',
-      'vec3 wash(sampler2D A, sampler2D B, float p, vec2 uv){',
+      'vec2 coverUV(vec2 uv, float fit){ float ra=uCanvasAspect, rt=uTexAspect; vec2 sc=vec2(1.0), sn=vec2(1.0); if(ra>rt){ sc.y=rt/ra; sn.x=ra/rt; } else { sc.x=ra/rt; sn.y=rt/ra; } vec2 s=mix(sc,sn,fit); uv=(uv-0.5)*s/uZoom+0.5; return uv; }',
+      'vec3 wash(sampler2D A, sampler2D B, float p, vec2 uv, float fit){',
       '  float t=uTime; float mo=(1.0-uReduced);',
       '  float amb=(0.6+uOutro*1.7)*mo;',
       '  vec2 ambD=vec2(sin(uv.y*9.0+t*0.5), sin(uv.x*8.0+t*0.45))*0.0022*amb;',
@@ -721,7 +721,7 @@ class Component extends DCLogic {
       '  float f=smoothstep(edge-w, edge+w, coord+wob);',
       '  float band=1.0-smoothstep(0.0, w*1.4, abs(coord+wob-edge));',
       '  vec2 crest=vec2(sin(uv.y*22.0+t*2.4), cos(uv.x*20.0+t*2.1))*0.045*band*mo;',
-      '  vec2 uvA=coverUV(uv+ambD+crest); vec2 uvB=coverUV(uv+ambD+crest*1.2);',
+      '  vec2 uvA=coverUV(uv+ambD+crest, fit); vec2 uvB=coverUV(uv+ambD+crest*1.2, fit);',
       '  vec3 ca=texture2D(A, uvA).rgb;',
       '  float ab=0.006*band; vec3 cb;',
       '  cb.r=texture2D(B, uvB+vec2(ab,0.0)).r; cb.g=texture2D(B, uvB).g; cb.b=texture2D(B, uvB-vec2(ab,0.0)).b;',
@@ -729,18 +729,27 @@ class Component extends DCLogic {
       '  float foam=band*smoothstep(0.12,0.85,p)*(1.0-smoothstep(0.85,1.0,p));',
       '  col+=vec3(1.0,0.93,0.78)*foam*0.18; return col;',
       '}',
+      // soft blurred fill for the letterbox: 5-tap blur of the cover-fit frame (fills the whole screen)
+      'vec3 blurFill(sampler2D T){ vec3 s=texture2D(T,coverUV(vUv,0.0)).rgb*0.4; s+=texture2D(T,coverUV(vUv+vec2(0.0,0.035),0.0)).rgb*0.15; s+=texture2D(T,coverUV(vUv+vec2(0.0,-0.035),0.0)).rgb*0.15; s+=texture2D(T,coverUV(vUv+vec2(0.03,0.0),0.0)).rgb*0.15; s+=texture2D(T,coverUV(vUv+vec2(-0.03,0.0),0.0)).rgb*0.15; return s; }',
       'void main(){',
       '  vec2 uv=vUv;',
       '  if(uRipple>0.001 && uReduced<0.5){ vec2 m=uMouse; float d=distance(vec2(uv.x*uCanvasAspect,uv.y), vec2(m.x*uCanvasAspect,m.y)); float rip=sin(d*26.0-uTime*3.5)*exp(-d*4.5)*0.02*uRipple; uv+=(uv-m)*rip; }',
       '  float sc=clamp(uScene,0.0,2.0); vec3 col;',
-      '  if(sc<1.0) col=wash(uTex0,uTex1,sc,uv); else col=wash(uTex1,uTex2,sc-1.0,uv);',
+      '  if(sc<1.0) col=wash(uTex0,uTex1,sc,uv,uFit); else col=wash(uTex1,uTex2,sc-1.0,uv,uFit);',
       '  col=mix(col, col*vec3(1.07,1.0,0.9)+vec3(0.02,0.01,0.0), 0.55);',
       '  float vig=smoothstep(1.25,0.35,distance(uv,vec2(0.5)));',
       '  col*=mix(1.0, mix(0.7,1.0,vig), uVignette);',
-      // letterbox: where "contain" samples past the frame, fade to deep teal (matches the dark grade)
-      '  vec2 fq=coverUV(vUv);',
-      '  float lb=smoothstep(0.0,0.02,fq.x)*smoothstep(1.0,0.98,fq.x)*smoothstep(0.0,0.02,fq.y)*smoothstep(1.0,0.98,fq.y);',
-      '  col=mix(vec3(0.043,0.173,0.204), col, lb);',
+      // letterbox: where "contain" samples past the frame, fill with a dim/blurred version of the
+      // same video (not flat teal) so the bars glow with the food colours instead of reading empty.
+      // Guarded on uFit so desktop/landscape (uFit==0, no bars) skips the extra sampling entirely.
+      '  if(uFit>0.001){',
+      '    vec3 fill = (sc<0.5) ? blurFill(uTex0) : (sc<1.5 ? blurFill(uTex1) : blurFill(uTex2));',
+      '    float fg=dot(fill,vec3(0.299,0.587,0.114)); fill=mix(vec3(fg),fill,0.6)*0.5;',   // desaturate + dim
+      '    fill=mix(fill, vec3(0.043,0.173,0.204), 0.35);',                                  // tint toward brand teal
+      '    vec2 fq=coverUV(vUv,uFit);',
+      '    float lb=smoothstep(0.0,0.02,fq.x)*smoothstep(1.0,0.98,fq.x)*smoothstep(0.0,0.02,fq.y)*smoothstep(1.0,0.98,fq.y);',
+      '    col=mix(fill, col, lb);',
+      '  }',
       '  gl_FragColor=vec4(col,1.0);',
       '}'
     ].join('\n');
