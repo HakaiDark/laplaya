@@ -660,6 +660,13 @@ class Component extends DCLogic {
   }
 
   // ---------- WebGL video world ----------
+  // How much to ease the 16:9 hero from cover->contain. 0 on landscape/desktop (fill the screen);
+  // ramps up as the viewport gets tall & narrow so phones show more of the frame, not a zoomed crop.
+  _fitValue() {
+    var ra = window.innerWidth / window.innerHeight; // viewport aspect (w/h)
+    if (ra >= 0.85) return 0.0;                       // landscape / desktop: full cover, unchanged
+    return Math.min(0.62, (0.85 - ra) * 1.15);        // taller & narrower => reveal more (capped)
+  }
   _initWebGL() {
     var canvas = document.getElementById('lpb-webgl');
     if (!canvas) return;
@@ -689,17 +696,21 @@ class Component extends DCLogic {
       uMouse: { value: new THREE.Vector2(0.5, 0.5) }, uRipple: { value: 0.0 },
       uZoom: { value: 1.0 }, uCanvasAspect: { value: window.innerWidth / window.innerHeight },
       uTexAspect: { value: 1916 / 1080 }, uReduced: { value: this.reduced ? 1.0 : 0.0 },
-      uOutro: { value: 0.0 }, uVignette: { value: 1.0 }
+      uOutro: { value: 0.0 }, uVignette: { value: 1.0 }, uFit: { value: 0.0 }
     };
     this._u = uniforms;
+    // On tall/portrait phones a 16:9 video "cover"-fills to a zoomed centre strip;
+    // ease toward "contain" so more of the frame shows (food isn't oversized).
+    uniforms.uFit.value = this._fitValue();
 
     var frag = [
       'precision highp float;',
       'varying vec2 vUv;',
       'uniform sampler2D uTex0; uniform sampler2D uTex1; uniform sampler2D uTex2;',
-      'uniform float uScene, uTime, uRipple, uZoom, uCanvasAspect, uTexAspect, uReduced, uOutro, uVignette;',
+      'uniform float uScene, uTime, uRipple, uZoom, uCanvasAspect, uTexAspect, uReduced, uOutro, uVignette, uFit;',
       'uniform vec2 uMouse;',
-      'vec2 coverUV(vec2 uv){ vec2 s=vec2(1.0); float ra=uCanvasAspect, rt=uTexAspect; if(ra>rt) s.y=rt/ra; else s.x=ra/rt; uv=(uv-0.5)*s/uZoom+0.5; return uv; }',
+      // uFit blends cover (0) -> contain (1): cover crops to fill, contain shows the whole frame.
+      'vec2 coverUV(vec2 uv){ float ra=uCanvasAspect, rt=uTexAspect; vec2 sc=vec2(1.0), sn=vec2(1.0); if(ra>rt){ sc.y=rt/ra; sn.x=ra/rt; } else { sc.x=ra/rt; sn.y=rt/ra; } vec2 s=mix(sc,sn,uFit); uv=(uv-0.5)*s/uZoom+0.5; return uv; }',
       'vec3 wash(sampler2D A, sampler2D B, float p, vec2 uv){',
       '  float t=uTime; float mo=(1.0-uReduced);',
       '  float amb=(0.6+uOutro*1.7)*mo;',
@@ -726,6 +737,10 @@ class Component extends DCLogic {
       '  col=mix(col, col*vec3(1.07,1.0,0.9)+vec3(0.02,0.01,0.0), 0.55);',
       '  float vig=smoothstep(1.25,0.35,distance(uv,vec2(0.5)));',
       '  col*=mix(1.0, mix(0.7,1.0,vig), uVignette);',
+      // letterbox: where "contain" samples past the frame, fade to deep teal (matches the dark grade)
+      '  vec2 fq=coverUV(vUv);',
+      '  float lb=smoothstep(0.0,0.02,fq.x)*smoothstep(1.0,0.98,fq.x)*smoothstep(0.0,0.02,fq.y)*smoothstep(1.0,0.98,fq.y);',
+      '  col=mix(vec3(0.043,0.173,0.204), col, lb);',
       '  gl_FragColor=vec4(col,1.0);',
       '}'
     ].join('\n');
@@ -763,6 +778,7 @@ class Component extends DCLogic {
     this._onResize = function () {
       renderer.setSize(window.innerWidth, window.innerHeight, false);
       self._u.uCanvasAspect.value = window.innerWidth / window.innerHeight;
+      self._u.uFit.value = self._fitValue();
       var m = window.innerWidth < 820;
       if (m !== self.state.isMobile) self.setState({ isMobile: m });
     };
