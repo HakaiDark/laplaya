@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Windows
+Thumbs.db
+
+# Node / tooling
+node_modules/
+
+# Editor
+.vscode/
+.idea/
+
+# Backups
+*.orig
