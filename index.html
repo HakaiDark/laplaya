@@ -69,9 +69,11 @@
 <!-- ============ SOURCE VIDEOS (WebGL textures) ============
      Swap these three paths for your hosted MP4 loops later — nothing else changes. -->
 <div aria-hidden="true" style="position:fixed; width:2px; height:2px; top:-10px; left:-10px; opacity:0; pointer-events:none; overflow:hidden;">
+  <!-- crêpe loads eagerly (it's the hero); waffle+smoothie defer to when you scroll into their
+       chapters — cuts initial load from ~12MB to ~4MB, a big win on slow connections. -->
   <video id="vid-crepe" src="assets/video-crepe.mp4?v=2" muted loop playsinline preload="auto"></video>
-  <video id="vid-waffle" src="assets/video-waffle.mp4?v=2" muted loop playsinline preload="auto"></video>
-  <video id="vid-smoothie" src="assets/video-smoothie.mp4?v=2" muted loop playsinline preload="auto"></video>
+  <video id="vid-waffle" src="assets/video-waffle.mp4?v=2" muted loop playsinline preload="metadata"></video>
+  <video id="vid-smoothie" src="assets/video-smoothie.mp4?v=2" muted loop playsinline preload="metadata"></video>
 </div>
 
 <!-- ============ WEBGL CANVAS (fixed world behind everything) ============ -->
@@ -87,7 +89,7 @@
 
 <!-- ============ SCROLL-EXPAND INTRO (front door) — expands into the hero, collapses back at the top ============ -->
 <div id="intro" style="position:fixed; inset:0; z-index:9995; overflow:hidden; background:#123f4d; will-change:opacity;">
-  <img src="assets/hero-bg-beach.png" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; display:block;">
+  <img src="assets/hero-bg-beach.jpg" alt="" loading="eager" decoding="async" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; display:block;">
   <div style="position:absolute; inset:0; background:rgba(12,44,54,.12);"></div>
   <!-- title splits apart as the media grows -->
   <div id="intro-titles" style="position:absolute; z-index:6; top:50%; left:0; right:0; transform:translateY(-50%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; pointer-events:none;">
@@ -97,7 +99,7 @@
   <!-- expanding crêpe media -->
   <div id="intro-media" style="position:absolute; z-index:4; top:50%; left:50%; transform:translate(-50%,-50%); width:300px; height:400px; max-width:95vw; max-height:85vh; border-radius:20px; box-shadow:0 0 50px rgba(0,0,0,.3);">
     <div style="position:relative; width:100%; height:100%; border-radius:18px; overflow:hidden; background:#14586B;">
-      <img id="intro-video" src="assets/hero-poster-crepe.png" alt="" style="width:100%; height:100%; object-fit:cover; display:block;">
+      <img id="intro-video" src="assets/hero-poster-crepe.jpg" alt="" decoding="async" style="width:100%; height:100%; object-fit:cover; display:block;">
       <div id="intro-overlay" style="position:absolute; inset:0; background:#0b2c34; opacity:.5; pointer-events:none;"></div>
     </div>
     <div style="position:relative; z-index:3; margin-top:18px; display:flex; flex-direction:column; align-items:center; gap:10px; white-space:nowrap;">
