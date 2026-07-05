@@ -850,7 +850,11 @@ class Component extends DCLogic {
   _fitValue() {
     var ra = window.innerWidth / window.innerHeight; // viewport aspect (w/h)
     if (ra >= 0.85) return 0.0;                       // landscape / desktop: full cover, unchanged
-    return Math.min(0.5, (0.85 - ra) * 1.0);          // taller & narrower => reveal more (capped, gentle)
+    // Taller & narrower => reveal more of the 16:9 frame. Tuned so a typical phone (390x844,
+    // ra=.46) lands ~0.68: ~76% of the frame width visible — the whole plated scene incl. the
+    // chocolate pour, like desktop — while the blurred same-video glow extends it to full bleed
+    // (verified: the feathered fill reads as one continuous scene, not letterbox bars).
+    return Math.min(0.78, (0.85 - ra) * 1.75);
   }
   _initWebGL() {
     var canvas = document.getElementById('lpb-webgl');
