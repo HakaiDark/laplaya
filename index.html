@@ -860,7 +860,10 @@ class Component extends DCLogic {
 
     var THREE = window.THREE;
     var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: false, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    // phones additionally run the 5-tap letterbox blur (uFit>0), so cap their fragment load a
+    // bit lower — the source is soft 720p video, the difference is invisible
+    var maxDPR = function () { return window.innerWidth < 820 ? 1.35 : 1.5; };
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDPR()));
     renderer.setSize(window.innerWidth, window.innerHeight, false);
     var scene = new THREE.Scene();
     var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -972,6 +975,7 @@ class Component extends DCLogic {
     window.gsap.ticker.add(render);
 
     this._onResize = function () {
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDPR()));
       renderer.setSize(window.innerWidth, window.innerHeight, false);
       self._u.uCanvasAspect.value = window.innerWidth / window.innerHeight;
       self._u.uFit.value = self._fitValue();
@@ -979,9 +983,10 @@ class Component extends DCLogic {
       if (m !== self.state.isMobile) self.setState({ isMobile: m });
     };
     window.addEventListener('resize', this._onResize, { passive: true });
-    // pause videos when tab hidden
+    // pause videos when tab hidden; on return, re-resolve which clips should run
     document.addEventListener('visibilitychange', function () {
-      vids.forEach(function (v) { if (!v) return; document.hidden ? v.pause() : (v.play && v.play().catch(function () {})); });
+      if (document.hidden) { self._playVids(false); self._activeKey = null; }
+      else self._syncVids();
     });
   }
 
@@ -1181,14 +1186,19 @@ class Component extends DCLogic {
       if (world) { var r = world.getBoundingClientRect(); if (r.top <= mid && r.bottom >= mid) hidden = true; }
     }
     this._glOff = hidden;
-    this._playVids(!hidden);
+    // decode only the scene-adjacent clip(s) — all three at once triples decode cost and forces
+    // the full ~12MB download up front on phones. The outro montage sweeps every scene, so it
+    // keeps all three warm while it runs.
+    if (hidden) this._activeVids(false);
+    else if (this._montage) this._playVids(true);
+    else this._activeVids(true);
     var iv = document.getElementById('intro-video');
     if (iv && iv.pause && this.introDone && !iv.paused) iv.pause();
   }
   _initVideoSync() {
     var self = this;
     // first-interaction fallback in case the browser blocked muted autoplay at first paint
-    var kick = function () { self._playVids(true); self._syncVids(); };
+    var kick = function () { self._activeKey = null; self._syncVids(); };
     ['pointerdown', 'touchstart', 'keydown', 'wheel'].forEach(function (ev) { window.addEventListener(ev, kick, { once: true, passive: true }); });
     // authoritative sync on every scroll (covers reduced-motion where Lenis is off, and scroll-up resume)
     window.addEventListener('scroll', function () { self._syncVids(); }, { passive: true });
@@ -1261,8 +1271,11 @@ class Component extends DCLogic {
       var tf = gsap.fromTo(fg, { scale: 1, yPercent: 0 }, { scale: 1.6, yPercent: -5, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: true } });
       if (tf.scrollTrigger) self._triggers.push(tf.scrollTrigger);
     }
-    // focus-pull: the backdrop starts soft and sharpens as you arrive at the arch
-    if (bg && gsap && !self.reduced) {
+    // focus-pull: the backdrop starts soft and sharpens as you arrive at the arch.
+    // Desktop-only: animating blur() re-rasterizes the full-viewport image every scroll frame,
+    // which stutters on phone GPUs — the scale-dolly + vignette carry the depth there.
+    var coarseEv = window.innerWidth < 820 || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+    if (bg && gsap && !self.reduced && !coarseEv) {
       var foc = { b: 5 };
       var tb = gsap.to(foc, { b: 0, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'center center', scrub: true }, onUpdate: function () { bg.style.filter = foc.b > 0.06 ? 'blur(' + foc.b.toFixed(2) + 'px)' : 'none'; } });
       if (tb.scrollTrigger) self._triggers.push(tb.scrollTrigger);
@@ -1517,7 +1530,7 @@ class Component extends DCLogic {
       if (Math.abs(self.iTarget - self.iShown) < 0.0005) self.iShown = self.iTarget;
       self._introApply(self.iShown);
       self._glOff = (self.iShown < 0.82) || document.hidden;
-      self._playVids(!self._glOff);
+      self._activeVids(!self._glOff); // scene 0 behind the intro => only the crêpe clip decodes
       if (self.introActive && self._iReadyRelease && self.iTarget >= 1 && self.iShown >= 0.999) self._releaseIntro();
       self._iRaf = requestAnimationFrame(self._iLoop);
     };
