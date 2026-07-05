@@ -1619,10 +1619,14 @@ class Component extends DCLogic {
   _fanSlotConfig(total, slot) {
     var C = this._fanConst();
     if (total >= C.MAXV) return C.POS[slot];
-    var center = (total - 1) / 2;
-    var dist = center > 0 ? (slot - center) / center : 0;
-    var ad = Math.abs(dist);
-    return { x: dist * 300, y: ad * ad * 44, rot: dist * 21, sc: 1.0 - 0.22 * ad * ad, z: 10 - Math.round(ad * 3) };
+    // Small decks: one slot is the designated FRONT. The old fractional centre ((total-1)/2)
+    // meant even-count decks (Smoothies, N Cup = 6) had NO front card — two near-centre cards
+    // at the same size and the SAME z-index rendered half over each other. Normalise each side
+    // by its own depth so the front sits at 0 and z falls off strictly with slot distance.
+    var cs = (total - 1) >> 1;
+    var d = slot === cs ? 0 : (slot < cs ? (slot - cs) / Math.max(1, cs) : (slot - cs) / Math.max(1, total - 1 - cs));
+    var ad = Math.abs(d);
+    return { x: d * 300, y: ad * ad * 44, rot: d * 21, sc: 1.0 - 0.22 * ad * ad, z: 10 - Math.min(9, Math.abs(slot - cs) * 3) };
   }
   _fanVisibleMap(center, total) {
     var C = this._fanConst(), map = {};
