@@ -655,7 +655,6 @@ class Component extends DCLogic {
       filter: 'All Items',
       menuCat: 'Pancake',
       fanCenter: 3,
-      fanPreview: null,   // touch: card id raised front-and-centre awaiting its confirm tap
       cart: {},           // id -> { item, qty }
       cartOpen: false,
       navOpen: false,     // mobile nav overlay
@@ -1626,7 +1625,14 @@ class Component extends DCLogic {
   }
   _fanVisibleMap(center, total) {
     var C = this._fanConst(), map = {};
-    if (total <= C.MAXV) { for (var i = 0; i < total; i++) map[i] = i; return map; }
+    if (total <= C.MAXV) {
+      // small categories rotate too: `center` is the item at the front slot, so swiping and
+      // side-taps browse every category the same way (a fixed identity map made these decks
+      // feel dead/stuck — swipes were silent no-ops)
+      var cs = (total - 1) >> 1;
+      for (var i = 0; i < total; i++) map[i] = ((i - center + cs) % total + total) % total;
+      return map;
+    }
     for (var slot = 0; slot < C.MAXV; slot++) { map[((center + slot - C.HALF) % total + total) % total] = slot; }
     return map;
   }
@@ -1743,9 +1749,9 @@ class Component extends DCLogic {
   _fanCycle(dir) { this._fanCycleBy(dir === 'right' ? 1 : -1); }
   _fanCycleBy(delta) {
     var total = this._catItems(this.state.menuCat).length;
-    if (total <= this._fanConst().MAXV || !delta) return;
+    if (total < 2 || !delta) return;
     var c = this.state.fanCenter;
-    this.setState({ fanCenter: ((c + delta) % total + total) % total, fanPreview: null });
+    this.setState({ fanCenter: ((c + delta) % total + total) % total });
   }
   // which visible slot a card occupies right now (slot undefined => card is hidden)
   _fanSlotOf(id) {
@@ -1755,8 +1761,7 @@ class Component extends DCLogic {
     if (idx < 0) return null;
     var C = this._fanConst();
     var paginate = items.length > C.MAXV;
-    var center = paginate ? this.state.fanCenter : ((items.length - 1) >> 1);
-    var vmap = this._fanVisibleMap(center, items.length);
+    var vmap = this._fanVisibleMap(this.state.fanCenter, items.length);
     return { slot: vmap[idx], centerSlot: paginate ? C.HALF : ((items.length - 1) >> 1), paginate: paginate };
   }
 
@@ -1780,8 +1785,7 @@ class Component extends DCLogic {
     var fanPaginate = fanItems.length > 7;
     var fanCenter = st.fanCenter;
     // declarative fan positions — computed here so they survive DC re-renders (no imperative GSAP that gets clobbered)
-    var _fc = fanPaginate ? fanCenter : ((fanItems.length - 1) >> 1);
-    var _vmap = self._fanVisibleMap(_fc, fanItems.length);
+    var _vmap = self._fanVisibleMap(fanCenter, fanItems.length);
     var _slotCount = fanPaginate ? 7 : fanItems.length;
     var _mult = self._fanMult();
     // NO will-change here: with 26-card categories it forced 26 permanent GPU layers, blowing
@@ -1793,18 +1797,14 @@ class Component extends DCLogic {
       var slot = _vmap[i];
       if (slot === undefined) {
         it.slotStyle = _fanBase + ' opacity:0; visibility:hidden; pointer-events:none; z-index:0; transform:scale(.4);';
-      } else if (!fanPaginate && st.fanPreview === it.id) {
-        // touch preview: first tap raised this card front-and-centre; the Add pill confirms
-        it.slotStyle = _fanBase + ' opacity:1; visibility:visible; pointer-events:auto; z-index:40; transform:translate(0px,-24px) rotate(0deg) scale(1.06);';
       } else {
         var cf = self._fanSlotConfig(_slotCount, slot);
         it.slotStyle = _fanBase + ' opacity:1; visibility:visible; pointer-events:auto; z-index:' + cf.z + '; transform:translate(' + (cf.x * _mult).toFixed(1) + 'px,' + (cf.y * _mult).toFixed(1) + 'px) rotate(' + cf.rot + 'deg) scale(' + cf.sc + ');';
       }
     });
-    // one dot per item of the CURRENT category, always; the front card's dot stretches
-    var _frontIdx = fanPaginate ? fanCenter : ((fanItems.length - 1) >> 1);
+    // one dot per item of the CURRENT category, always; fanCenter is the front item everywhere
     var fanDots = fanItems.map(function (_, i) {
-      var a = i === _frontIdx;
+      var a = i === fanCenter;
       return { i: i, style: { width: a ? '22px' : '8px', height: '8px', borderRadius: '999px', background: a ? '#1F7A8C' : 'rgba(31,122,140,.24)', transition: 'width .3s, background-color .3s' } };
     });
     var fanFrondStyle = { position: 'absolute', top: '-14px', right: '-12px', width: '96px', height: '96px', backgroundImage: frondBg, backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', opacity: 0.12, transform: 'rotate(8deg)', pointerEvents: 'none', zIndex: 1 };
@@ -1875,7 +1875,7 @@ class Component extends DCLogic {
       onFilterClick: function (e) {
         var btnEl = e.currentTarget;
         var cat = btnEl.getAttribute('data-cat'); var n = self._catItems(cat).length;
-        self.setState({ menuCat: cat, fanCenter: n > 7 ? 3 : (n >> 1), fanPreview: null });
+        self.setState({ menuCat: cat, fanCenter: n > 7 ? 3 : ((n - 1) >> 1) });
         // mobile pill rail: keep the tapped category centred under the thumb
         var rail = document.getElementById('menu-pills');
         if (rail && rail.scrollWidth > rail.clientWidth + 4) {
@@ -1884,22 +1884,18 @@ class Component extends DCLogic {
           if (rail.scrollTo) rail.scrollTo({ left: left, behavior: 'smooth' }); else rail.scrollLeft = left;
         }
       },
-      // card BODY: browse only — never adds (mistouch-proof). A side card cycles itself
-      // front-and-centre on tap AND click (arrows are gone, this is the navigation now, along
-      // with swipe on touch). Adding is exclusively the Add pill (onFanAdd).
+      // card BODY: browse only — never adds (mistouch-proof). Tapping/clicking any side card
+      // cycles it front-and-centre in EVERY category (this + swipe is all the navigation).
+      // Adding is exclusively the Add pill (onFanAdd).
       onFanBrowse: function (e) {
         if (e) { e.preventDefault && e.preventDefault(); }
-        var id = e.currentTarget.getAttribute('data-id');
-        var pos = self._fanSlotOf(id);
-        if (pos && pos.slot !== undefined && pos.slot !== pos.centerSlot) {
-          if (pos.paginate) self._fanCycleBy(pos.slot - pos.centerSlot);
-          else if ((window.matchMedia && window.matchMedia('(pointer:coarse)').matches) && st.fanPreview !== id) self.setState({ fanPreview: id });
-        }
+        var pos = self._fanSlotOf(e.currentTarget.getAttribute('data-id'));
+        if (pos && pos.slot !== undefined && pos.slot !== pos.centerSlot) self._fanCycleBy(pos.slot - pos.centerSlot);
       },
       onFanAdd: function (e) {
         if (e) { e.preventDefault && e.preventDefault(); e.stopPropagation && e.stopPropagation(); }
         var it = self._byId(e.currentTarget.getAttribute('data-id'));
-        if (it) { self.addToCart(it, e); if (st.fanPreview) self.setState({ fanPreview: null }); }
+        if (it) self.addToCart(it, e);
       },
 
       // cart drawer
