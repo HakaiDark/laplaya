@@ -583,6 +583,8 @@ class Component extends DCLogic {
     try { this.lenis && this.lenis.destroy(); } catch (e) {}
     try { this._three && this._three.renderer.dispose(); } catch (e) {}
     try { this._montage && this._montage.kill(); } catch (e) {}
+    try { window.removeEventListener('resize', this._fanResize); } catch (e) {}
+    try { var s = this._fanSwipe; if (s) { s.el.removeEventListener('touchstart', s.start); s.el.removeEventListener('touchmove', s.move); s.el.removeEventListener('touchend', s.end); s.el.removeEventListener('touchcancel', s.end); this._fanSwipe = null; } } catch (e) {}
   }
 
   // ---------- palm-frond silhouettes (blurred shade) ----------
@@ -1051,6 +1053,7 @@ class Component extends DCLogic {
     var self = this;
     if (!document.getElementById('menu')) return;
     this._revealGrid();
+    this._bindFanSwipe();
     // (video play/pause is now handled centrally by _syncVids — scroll-position driven — so no toggle here)
   }
   _initBuilder() {
@@ -1358,6 +1361,37 @@ class Component extends DCLogic {
     this._fanLayout(true);
     this._fanResize = function () { if (!self._fanAnimating) self._fanLayout(false, true); };
     window.addEventListener('resize', this._fanResize);
+  }
+  // ---------- swipe: drag the deck left/right on touch (phone-friendly alt to the arrows) ----------
+  _bindFanSwipe() {
+    var deck = document.getElementById('fan-deck'); if (!deck || this._fanSwipe) return;
+    var self = this, sx = 0, sy = 0, tracking = false, decided = false, horiz = false;
+    var THRESH = 42; // px of horizontal travel to count as a swipe
+    var onStart = function (e) {
+      var t = e.touches && e.touches[0]; if (!t) return;
+      sx = t.clientX; sy = t.clientY; tracking = true; decided = false; horiz = false;
+    };
+    var onMove = function (e) {
+      if (!tracking) return;
+      var t = e.touches && e.touches[0]; if (!t) return;
+      var dx = t.clientX - sx, dy = t.clientY - sy;
+      if (!decided && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) { decided = true; horiz = Math.abs(dx) > Math.abs(dy); }
+      // lock the page from scrolling while the gesture is clearly horizontal
+      if (decided && horiz && e.cancelable) e.preventDefault();
+    };
+    var onEnd = function (e) {
+      if (!tracking) return; tracking = false;
+      if (!horiz) return;
+      var t = (e.changedTouches && e.changedTouches[0]); if (!t) return;
+      var dx = t.clientX - sx;
+      if (Math.abs(dx) < THRESH) return;
+      self._fanCycle(dx < 0 ? 'right' : 'left'); // drag left => advance, drag right => go back
+    };
+    deck.addEventListener('touchstart', onStart, { passive: true });
+    deck.addEventListener('touchmove', onMove, { passive: false });
+    deck.addEventListener('touchend', onEnd, { passive: true });
+    deck.addEventListener('touchcancel', onEnd, { passive: true });
+    this._fanSwipe = { el: deck, start: onStart, move: onMove, end: onEnd };
   }
   _fanLayout(firstMount, isResize) {
     var self = this, gsap = window.gsap;
