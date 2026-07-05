@@ -984,6 +984,18 @@ class Component extends DCLogic {
       if (m !== self.state.isMobile) self.setState({ isMobile: m });
     };
     window.addEventListener('resize', this._onResize, { passive: true });
+    // phones have no cursor to drive the hero water ripple — let the gyroscope steer it instead.
+    // Android (and older iOS) fire deviceorientation freely; newer iOS gates it behind a
+    // permission prompt we don't want for a garnish, so those simply keep the centred ripple.
+    if (!this.reduced && window.matchMedia && window.matchMedia('(pointer:coarse)').matches) {
+      window.addEventListener('deviceorientation', function (ev) {
+        if (ev.gamma == null || ev.beta == null) return;
+        var g = Math.max(-28, Math.min(28, ev.gamma));          // side-to-side tilt
+        var b = Math.max(-28, Math.min(28, ev.beta - 40));      // relative to a natural ~40° hold
+        self.mouse.tx = 0.5 + g / 56;
+        self.mouse.ty = 0.5 - b / 56;
+      }, { passive: true });
+    }
     // pause videos when tab hidden; on return, re-resolve which clips should run
     document.addEventListener('visibilitychange', function () {
       if (document.hidden) { self._playVids(false); self._activeKey = null; }
