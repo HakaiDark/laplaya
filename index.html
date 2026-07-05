@@ -2,7 +2,8 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#123f4d">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -38,15 +39,45 @@
      clipping — while leaving vertical scroll, position:sticky and Lenis intact. */
   html{ overflow-x:clip; }
   body{ overflow-x:clip; }
+  /* Notched phones (viewport-fit=cover): keep the fixed nav below the status bar / dynamic island.
+     env() is 0px on regular screens so desktop is untouched. */
+  #lpb-nav{ padding-top:calc(16px + env(safe-area-inset-top, 0px)) !important; }
+  /* fan deck: we handle horizontal swipes ourselves — tell the browser to only own vertical pans
+     so the first touchmove is still cancelable and the gesture never fights page scroll */
+  #fan-deck{ touch-action:pan-y; }
+  [data-cards]::-webkit-scrollbar{ display:none; }
+  #menu-pills::-webkit-scrollbar{ display:none; }
+  /* iOS URL bar: svh = stable small-viewport height, so hero content (scroll cue) and the outro
+     footer are never hidden behind the collapsed toolbar. Pinned chapters stay 100vh — the bar is
+     collapsed while they're on screen, where 100vh is exact. */
+  @supports (height:100svh){
+    #hero{ min-height:100svh !important; }
+    #outro{ min-height:100svh !important; }
+  }
   @media (max-width:760px){
     /* NAV — keep the fixed bar compact so the Cart button never clips off-screen */
-    #lpb-nav{ padding-left:14px !important; padding-right:14px !important; gap:8px !important; }
+    #lpb-nav{ padding-left:calc(14px + env(safe-area-inset-left, 0px)) !important; padding-right:calc(14px + env(safe-area-inset-right, 0px)) !important; gap:8px !important; }
     #cart-fab{ padding:9px 12px !important; font-size:12px !important; gap:7px !important; }
-    /* MENU pills — don't pin on phones (the tall wrapped bar covered card names); compact */
-    #menu-pills{ position:static !important; padding:9px !important; gap:7px !important; margin-bottom:16px !important; }
-    #menu-pills button{ padding:8px 13px !important; font-size:12.5px !important; }
+    /* MENU pills — a thumb-swipeable rail (wrapping made a tall block that ate the viewport) */
+    #menu-pills{ position:static !important; padding:9px !important; gap:7px !important; margin-bottom:16px !important; flex-wrap:nowrap !important; justify-content:flex-start !important; overflow-x:auto; max-width:100%; -webkit-overflow-scrolling:touch; scrollbar-width:none; scroll-snap-type:x proximity; }
+    #menu-pills button{ padding:8px 13px !important; font-size:12.5px !important; flex:0 0 auto; scroll-snap-align:center; }
     /* FAN deck — shrink so the active card centres without a big empty gap */
     #fan-deck{ height:342px !important; }
+    /* CHAPTER card rows — native carousel feel: each dessert card snaps centred */
+    [data-cards]{ scroll-snap-type:x mandatory; scroll-padding:0 16px; scrollbar-width:none; }
+    [data-cards] [data-card]{ scroll-snap-align:center; }
+    /* CHAPTER cards — big backdrop blurs repaint every scrubbed frame on phone GPUs;
+       trade blur radius for a slightly more opaque glass so it stays readable AND smooth */
+    [data-card]{ backdrop-filter:blur(9px) saturate(1.25) !important; -webkit-backdrop-filter:blur(9px) saturate(1.25) !important; background:linear-gradient(158deg, rgba(31,122,140,.5), rgba(20,58,64,.46)) !important; }
+    /* CHAPTER intro line — right-aligned ragged text reads poorly once it wraps under the kicker */
+    .ch-intro{ text-align:left !important; font-size:14px !important; max-width:340px !important; }
+    /* EVENTS form — iOS zooms the whole page onto any focused input under 16px */
+    #events-form .fld{ font-size:16px !important; }
+    /* EVENTS foreground palms — a static full-viewport blur() still costs a texture re-rasterize
+       when the scale animates; palms read fine sharp at phone sizes */
+    #events-fg{ filter:none !important; }
+    /* CART drawer footer — clear the iPhone home indicator */
+    .cart-foot{ padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px)) !important; }
   }
 
   /* ===== Events & Catering inquiry form ===== */
@@ -180,7 +211,7 @@
       </div>
     </div>
     <!-- animated wave scroll cue -->
-    <div style="position:absolute; bottom:26px; left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:8px; color:#F5F1E3;">
+    <div style="position:absolute; bottom:calc(26px + env(safe-area-inset-bottom, 0px)); left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:8px; color:#F5F1E3;">
       <span style="font-family:'Manrope',sans-serif; font-weight:600; font-size:10px; letter-spacing:3px; text-transform:uppercase; opacity:.85;">Scroll</span>
       <svg width="46" height="16" viewBox="0 0 46 16" fill="none" style="animation:lpbWaveBob 2.4s ease-in-out infinite; opacity:.85;"><path d="M1 8c5-6 9-6 14 0s9 6 14 0 9-6 16 0" stroke="#F5F1E3" stroke-width="2" stroke-linecap="round"/></svg>
     </div>
@@ -194,7 +225,7 @@
       <div style="position:relative; height:100%; display:flex; flex-direction:column; justify-content:space-between; padding:clamp(96px,13vh,150px) clamp(16px,5vw,60px) clamp(30px,5vh,54px);">
         <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap;">
           <span style="display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:999px; background:rgba(245,241,227,.16); border:1px solid rgba(245,241,227,.3); color:#F5F1E3; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px; letter-spacing:2.6px; text-transform:uppercase; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);">{{ ch.kicker }}</span>
-          <p style="max-width:360px; margin:0; text-align:right; font-family:'Fraunces',serif; font-style:italic; font-weight:400; font-size:clamp(15px,2vw,22px); line-height:1.35; color:#F5F1E3; text-shadow:0 2px 14px rgba(0,0,0,.4);">{{ ch.intro }}</p>
+          <p class="ch-intro" style="max-width:360px; margin:0; text-align:right; font-family:'Fraunces',serif; font-style:italic; font-weight:400; font-size:clamp(15px,2vw,22px); line-height:1.35; color:#F5F1E3; text-shadow:0 2px 14px rgba(0,0,0,.4);">{{ ch.intro }}</p>
         </div>
         <div data-cards style="display:flex; gap:clamp(14px,1.6vw,22px); align-items:stretch; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; padding-bottom:4px; scrollbar-width:none; -ms-overflow-style:none;">
           <sc-for list="{{ ch.items }}" as="it" hint-placeholder-count="3">
@@ -552,7 +583,7 @@
       </sc-if>
     </div>
     <sc-if value="{{ cartHasItems }}">
-      <div style="padding:18px 24px 24px; border-top:1px solid rgba(31,122,140,.14); background:#FBF8EE;">
+      <div class="cart-foot" style="padding:18px 24px 24px; border-top:1px solid rgba(31,122,140,.14); background:#FBF8EE;">
         <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px;">
           <span style="font-family:'Manrope',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:rgba(20,58,64,.6);">Total</span>
           <span style="font-family:'Fraunces',serif; font-weight:600; font-size:30px; color:#1F7A8C;">{{ cartTotalLabel }}</span>
