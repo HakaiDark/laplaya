@@ -222,9 +222,20 @@
   <!-- ===== CREAM WORLD (opaque — scrolls over the video; menu + builder live here) ===== -->
   <div id="cream-world" style="position:relative; z-index:6; background:#F5F1E3;">
     <div aria-hidden="true" style="position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.4; mix-blend-mode:multiply; background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n2)'/%3E%3C/svg%3E&quot;);"></div>
-    <!-- wave divider rising into the gallery -->
-    <div aria-hidden="true" style="position:absolute; top:0; left:0; right:0; z-index:1; line-height:0; transform:translateY(-98%);">
-      <svg viewBox="0 0 1440 90" width="100%" height="auto" preserveAspectRatio="none" style="display:block;"><path d="M0 90 L0 46 C 180 10 360 8 540 40 C 720 72 900 88 1080 66 C 1230 48 1350 30 1440 40 L1440 90 Z" fill="#F5F1E3"/></svg>
+    <!-- shoreline rising into the smoothie chapter — sandy crests that melt down into the cream board (matches the events->outro shoreline) -->
+    <div aria-hidden="true" style="position:absolute; top:0; left:0; right:0; z-index:1; line-height:0; height:130px; transform:translateY(-97%); pointer-events:none;">
+      <svg viewBox="0 0 1440 130" width="100%" height="100%" preserveAspectRatio="none" style="display:block;">
+        <defs>
+          <linearGradient id="shoreTopBack" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#EFE4C6"/><stop offset="1" stop-color="#F5F1E3"/>
+          </linearGradient>
+          <linearGradient id="shoreTopFront" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#E9D9B4"/><stop offset=".7" stop-color="#F1EBDB"/><stop offset="1" stop-color="#F5F1E3"/>
+          </linearGradient>
+        </defs>
+        <path d="M0 34 C 200 8 420 12 620 40 C 820 68 1000 74 1200 48 C 1300 35 1370 30 1440 38 L1440 130 L0 130 Z" fill="url(#shoreTopBack)" opacity=".85"/>
+        <path d="M0 60 C 220 88 440 44 660 62 C 900 82 1080 52 1300 70 C 1370 78 1410 74 1440 72 L1440 130 L0 130 Z" fill="url(#shoreTopFront)"/>
+      </svg>
     </div>
 
     <!-- ===== FULL MENU (filterable) ===== -->
