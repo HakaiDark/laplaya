@@ -674,6 +674,7 @@ class Component extends DCLogic {
       filter: 'All Items',
       menuCat: 'Pancake',
       fanCenter: 3,
+      fanPreview: null,   // touch: card id raised front-and-centre awaiting its confirm tap
       cart: {},           // id -> { item, qty }
       cartOpen: false,
       navOpen: false,     // mobile nav overlay
@@ -1722,11 +1723,24 @@ class Component extends DCLogic {
     deck.addEventListener('mouseleave', leave);
     this._fanHover = { enter: enter, leave: leave };
   }
-  _fanCycle(dir) {
+  _fanCycle(dir) { this._fanCycleBy(dir === 'right' ? 1 : -1); }
+  _fanCycleBy(delta) {
     var total = this._catItems(this.state.menuCat).length;
-    if (total <= 7) return;
+    if (total <= this._fanConst().MAXV || !delta) return;
     var c = this.state.fanCenter;
-    this.setState({ fanCenter: dir === 'right' ? (c + 1) % total : (c - 1 + total) % total });
+    this.setState({ fanCenter: ((c + delta) % total + total) % total, fanPreview: null });
+  }
+  // which visible slot a card occupies right now (slot undefined => card is hidden)
+  _fanSlotOf(id) {
+    var items = this._catItems(this.state.menuCat);
+    var idx = -1;
+    for (var i = 0; i < items.length; i++) if (items[i].id === id) { idx = i; break; }
+    if (idx < 0) return null;
+    var C = this._fanConst();
+    var paginate = items.length > C.MAXV;
+    var center = paginate ? this.state.fanCenter : ((items.length - 1) >> 1);
+    var vmap = this._fanVisibleMap(center, items.length);
+    return { slot: vmap[idx], centerSlot: paginate ? C.HALF : ((items.length - 1) >> 1), paginate: paginate };
   }
 
   // ---------- render inputs ----------
@@ -1758,6 +1772,9 @@ class Component extends DCLogic {
       var slot = _vmap[i];
       if (slot === undefined) {
         it.slotStyle = _fanBase + ' opacity:0; pointer-events:none; z-index:0; transform:scale(.4);';
+      } else if (!fanPaginate && st.fanPreview === it.id) {
+        // touch preview: first tap raised this card front-and-centre; next tap adds it
+        it.slotStyle = _fanBase + ' opacity:1; pointer-events:auto; z-index:40; transform:translate(0px,-24px) rotate(0deg) scale(1.06);';
       } else {
         var cf = self._fanSlotConfig(_slotCount, slot);
         it.slotStyle = _fanBase + ' opacity:1; pointer-events:auto; z-index:' + cf.z + '; transform:translate(' + (cf.x * _mult).toFixed(1) + 'px,' + (cf.y * _mult).toFixed(1) + 'px) rotate(' + cf.rot + 'deg) scale(' + cf.sc + ');';
@@ -1833,8 +1850,34 @@ class Component extends DCLogic {
       fanFrondStyle: fanFrondStyle,
       frondBg: frondBg,
       frondStyle: { position: 'absolute', top: '-20px', right: '-18px', width: '84px', height: '84px', backgroundImage: frondBg, backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', opacity: 0.16, pointerEvents: 'none' },
-      onFilterClick: function (e) { var cat = e.currentTarget.getAttribute('data-cat'); var n = self._catItems(cat).length; self.setState({ menuCat: cat, fanCenter: n > 7 ? 3 : (n >> 1) }); },
-      onFanAdd: function (e) { if (e) { e.preventDefault && e.preventDefault(); e.stopPropagation && e.stopPropagation(); } var it = self._byId(e.currentTarget.getAttribute('data-id')); if (it) self.addToCart(it, e); },
+      onFilterClick: function (e) {
+        var btnEl = e.currentTarget;
+        var cat = btnEl.getAttribute('data-cat'); var n = self._catItems(cat).length;
+        self.setState({ menuCat: cat, fanCenter: n > 7 ? 3 : (n >> 1), fanPreview: null });
+        // mobile pill rail: keep the tapped category centred under the thumb
+        var rail = document.getElementById('menu-pills');
+        if (rail && rail.scrollWidth > rail.clientWidth + 4) {
+          var br = btnEl.getBoundingClientRect(), rr = rail.getBoundingClientRect();
+          var left = rail.scrollLeft + (br.left - rr.left) - (rr.width - br.width) / 2;
+          if (rail.scrollTo) rail.scrollTo({ left: left, behavior: 'smooth' }); else rail.scrollLeft = left;
+        }
+      },
+      onFanAdd: function (e) {
+        if (e) { e.preventDefault && e.preventDefault(); e.stopPropagation && e.stopPropagation(); }
+        var id = e.currentTarget.getAttribute('data-id');
+        // touch: side cards are ~90% hidden behind the front card, so a stray tap silently added
+        // the wrong item. First tap brings a card front-and-centre; the front card's tap adds.
+        var coarse = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
+        if (coarse) {
+          var pos = self._fanSlotOf(id);
+          if (pos && pos.slot !== undefined && pos.slot !== pos.centerSlot) {
+            if (pos.paginate) { self._fanCycleBy(pos.slot - pos.centerSlot); return; }
+            if (st.fanPreview !== id) { self.setState({ fanPreview: id }); return; }
+          }
+        }
+        var it = self._byId(id);
+        if (it) { self.addToCart(it, e); if (st.fanPreview) self.setState({ fanPreview: null }); }
+      },
       onFanPrev: function () { self._fanCycle('left'); },
       onFanNext: function () { self._fanCycle('right'); },
 
