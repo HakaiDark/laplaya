@@ -367,7 +367,10 @@
         <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(12,44,54,.60) 0%, rgba(12,44,54,.30) 24%, rgba(18,63,77,.20) 52%, rgba(12,44,54,.20) 80%, rgba(12,44,54,.10) 100%);"></div>
         <!-- foreground palms (nearest plane): sweep past faster than the backdrop as you scroll in -->
         <img id="events-fg" src="assets/events-palms.webp?v=1" alt="" decoding="async" loading="lazy" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 44%; transform:scale(1); filter:blur(1.4px); will-change:transform; pointer-events:none;">
+        <!-- vignette that opens as you scroll in, drawing the eye down the aisle to the arch/form -->
+        <div id="events-vig" aria-hidden="true" style="position:absolute; inset:0; background:radial-gradient(125% 95% at 50% 40%, rgba(12,44,54,0) 42%, rgba(12,44,54,.5) 100%); opacity:.7; pointer-events:none;"></div>
       </div>
+      <div id="events-content" style="position:relative;">
       <div data-events-in style="text-align:center; max-width:680px; margin:0 auto clamp(30px,4.5vh,52px); position:relative;">
         <span style="display:inline-flex; align-items:center; padding:8px 16px; border-radius:999px; background:#E7607A; border:1px solid rgba(245,241,227,.4); color:#FFF3F5; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px; letter-spacing:2.6px; text-transform:uppercase; box-shadow:0 6px 20px rgba(12,44,54,.35);">Events &amp; Catering</span>
         <h2 style="margin:16px 0 12px; font-family:'Fraunces',serif; font-weight:600; font-size:clamp(38px,6vw,80px); line-height:.98; color:#F9F5E9; letter-spacing:-.01em; text-wrap:balance; text-shadow:0 4px 30px rgba(12,44,54,.55);">Bring the beach to your celebration</h2>
@@ -430,6 +433,7 @@
             <p style="margin:0 auto; max-width:300px; font-family:'Manrope',sans-serif; font-size:14px; line-height:1.55; color:rgba(20,58,64,.66);">We&rsquo;ve got your details and will be in touch soon to plan your event. See you at the beach.</p>
           </div>
         </div>
+      </div>
       </div>
     </section>
 
@@ -1190,6 +1194,24 @@ class Component extends DCLogic {
     if (fg && gsap && !self.reduced) {
       var tf = gsap.fromTo(fg, { scale: 1, yPercent: 0 }, { scale: 1.6, yPercent: -5, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: true } });
       if (tf.scrollTrigger) self._triggers.push(tf.scrollTrigger);
+    }
+    // focus-pull: the backdrop starts soft and sharpens as you arrive at the arch
+    if (bg && gsap && !self.reduced) {
+      var foc = { b: 5 };
+      var tb = gsap.to(foc, { b: 0, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'center center', scrub: true }, onUpdate: function () { bg.style.filter = foc.b > 0.06 ? 'blur(' + foc.b.toFixed(2) + 'px)' : 'none'; } });
+      if (tb.scrollTrigger) self._triggers.push(tb.scrollTrigger);
+    }
+    // vignette opens (edges clear) as you scroll toward the arch/form
+    var vig = document.getElementById('events-vig');
+    if (vig && gsap && !self.reduced) {
+      var tv = gsap.fromTo(vig, { opacity: 0.82 }, { opacity: 0.22, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'center center', scrub: true } });
+      if (tv.scrollTrigger) self._triggers.push(tv.scrollTrigger);
+    }
+    // content counter-parallax: the cards/form drift a touch faster than the scene for depth between UI and backdrop
+    var content = document.getElementById('events-content');
+    if (content && gsap && !self.reduced) {
+      var tc = gsap.fromTo(content, { yPercent: 3 }, { yPercent: -5, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: true } });
+      if (tc.scrollTrigger) self._triggers.push(tc.scrollTrigger);
     }
     var form = document.getElementById('events-form'); if (!form || form._bound) return; form._bound = true;
     var ok = document.getElementById('events-success');
