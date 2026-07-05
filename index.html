@@ -48,6 +48,19 @@
     /* FAN deck — shrink so the active card centres without a big empty gap */
     #fan-deck{ height:342px !important; }
   }
+
+  /* ===== Events & Catering inquiry form ===== */
+  #events-form .grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px 16px; }
+  #events-form .col2{ grid-column:1 / -1; }
+  #events-form label{ display:block; font-family:'Manrope',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:1.4px; text-transform:uppercase; color:rgba(20,58,64,.6); margin:0 0 7px; }
+  #events-form .fld{ width:100%; box-sizing:border-box; font-family:'Manrope',sans-serif; font-size:14.5px; color:#14586B; background:#FFFFFF; border:1.4px solid rgba(31,122,140,.22); border-radius:13px; padding:12px 14px; cursor:text; transition:border-color .2s ease, box-shadow .2s ease; }
+  #events-form .fld::placeholder{ color:rgba(20,58,64,.4); }
+  #events-form .fld:focus{ outline:none; border-color:#1F7A8C; box-shadow:0 0 0 3px rgba(31,122,140,.16); }
+  #events-form textarea.fld{ min-height:116px; resize:vertical; line-height:1.5; }
+  #events-form select.fld{ cursor:pointer; -webkit-appearance:none; appearance:none; padding-right:38px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%231F7A8C' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; }
+  #events-submit:disabled{ opacity:.65; cursor:progress; }
+  #events-form .hp{ position:absolute !important; left:-9999px !important; width:1px; height:1px; overflow:hidden; }
+  @media (max-width:560px){ #events-form .grid{ grid-template-columns:1fr; } }
 </style>
 <script>
   /* Fade the instant blur-up poster once the crêpe clip is actually decoding, revealing the live WebGL frame underneath. */
@@ -131,6 +144,7 @@
   <div style="display:flex; align-items:center; gap:clamp(6px,1.6vw,26px);">
     <div id="nav-links" style="display:flex; align-items:center; gap:clamp(10px,1.8vw,26px);">
       <a href="#menu" onClick="{{ onNavMenu }}" data-cursor="link" style="font-weight:600; font-size:13px; letter-spacing:.4px; color:#F5F1E3; text-decoration:none; cursor:none; text-shadow:0 1px 10px rgba(0,0,0,.4);">The Menu</a>
+      <a href="#events" onClick="{{ onNavEvents }}" data-cursor="link" style="font-weight:600; font-size:13px; letter-spacing:.4px; color:#F5F1E3; text-decoration:none; cursor:none; text-shadow:0 1px 10px rgba(0,0,0,.4);">Events</a>
       <a href="#outro" onClick="{{ onNavVisit }}" data-cursor="link" style="font-weight:600; font-size:13px; letter-spacing:.4px; color:#F5F1E3; text-decoration:none; cursor:none; text-shadow:0 1px 10px rgba(0,0,0,.4);">Visit</a>
     </div>
     <button id="cart-fab" onClick="{{ onOpenCart }}" data-cursor="grow" aria-label="Open cart" style="position:relative; display:flex; align-items:center; gap:9px; border:none; cursor:none; padding:10px 16px 10px 14px; border-radius:999px; background:#E8A44C; color:#14586B; font-family:'Manrope',sans-serif; font-weight:800; font-size:13px; letter-spacing:.3px; box-shadow:0 8px 24px rgba(20,58,64,.28);">
@@ -328,6 +342,73 @@
               Add to cart
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h2l1.6 10.4a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L21 8H7"/></svg>
             </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== EVENTS & CATERING · inquiry ===== -->
+    <section id="events" data-screen-label="Events &amp; Catering" style="position:relative; z-index:2; padding:clamp(50px,8vh,110px) clamp(16px,5vw,60px) clamp(60px,9vh,120px); max-width:1160px; margin:0 auto;">
+      <div data-events-in style="text-align:center; max-width:680px; margin:0 auto clamp(30px,4.5vh,52px);">
+        <span style="display:inline-flex; align-items:center; padding:8px 16px; border-radius:999px; background:rgba(231,96,122,.1); border:1px solid rgba(231,96,122,.28); color:#E7607A; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px; letter-spacing:2.6px; text-transform:uppercase;">Events &amp; Catering</span>
+        <h2 style="margin:16px 0 12px; font-family:'Fraunces',serif; font-weight:600; font-size:clamp(38px,6vw,80px); line-height:.98; color:#1F7A8C; letter-spacing:-.01em; text-wrap:balance;">Bring the beach to your celebration</h2>
+        <p style="margin:0; font-family:'Manrope',sans-serif; font-size:clamp(14px,1.6vw,17px); line-height:1.55; color:rgba(20,58,64,.72);">Weddings, engagements and private parties on the white-sand shore — plus live crêpe &amp; waffle stations, boba bars and dessert tables catered to you anywhere in the Bekaa. Tell us about your day and we&rsquo;ll build something sweet around it.</p>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:clamp(22px,4vw,44px); align-items:start;">
+        <!-- offerings -->
+        <div data-events-in style="display:flex; flex-direction:column; gap:14px;">
+          <div style="display:flex; gap:14px; align-items:flex-start; padding:18px 20px; border-radius:18px; background:#FBF8EE; border:1px solid rgba(31,122,140,.14); box-shadow:0 10px 26px rgba(20,58,64,.06);">
+            <span style="flex:0 0 auto; display:grid; place-items:center; width:42px; height:42px; border-radius:12px; background:rgba(31,122,140,.1); color:#1F7A8C;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C.8 9.7 2.2 6 5.5 6 8 6 9.5 8 12 10.5 14.5 8 16 6 18.5 6 21.8 6 23.2 9.7 21.5 12.5 19 16.65 12 21 12 21Z"/></svg></span>
+            <div><div style="font-family:'Fraunces',serif; font-weight:600; font-size:19px; color:#14586B; line-height:1.2;">Weddings &amp; engagements</div><p style="margin:5px 0 0; font-size:13px; line-height:1.5; color:rgba(20,58,64,.6);">Lakeside receptions and after-parties styled around your palette.</p></div>
+          </div>
+          <div style="display:flex; gap:14px; align-items:flex-start; padding:18px 20px; border-radius:18px; background:#FBF8EE; border:1px solid rgba(31,122,140,.14); box-shadow:0 10px 26px rgba(20,58,64,.06);">
+            <span style="flex:0 0 auto; display:grid; place-items:center; width:42px; height:42px; border-radius:12px; background:rgba(232,164,76,.14); color:#E8A44C;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-8h16v8M6 13V9a6 6 0 0 1 12 0v4M12 3v1.5"/><path d="M3 21h18"/></svg></span>
+            <div><div style="font-family:'Fraunces',serif; font-weight:600; font-size:19px; color:#14586B; line-height:1.2;">Private parties &amp; birthdays</div><p style="margin:5px 0 0; font-size:13px; line-height:1.5; color:rgba(20,58,64,.6);">Intimate gatherings with a dessert spread that steals the night.</p></div>
+          </div>
+          <div style="display:flex; gap:14px; align-items:flex-start; padding:18px 20px; border-radius:18px; background:#FBF8EE; border:1px solid rgba(31,122,140,.14); box-shadow:0 10px 26px rgba(20,58,64,.06);">
+            <span style="flex:0 0 auto; display:grid; place-items:center; width:42px; height:42px; border-radius:12px; background:rgba(168,198,134,.2); color:#6f9e57;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6M9 9h.01M15 9h.01"/></svg></span>
+            <div><div style="font-family:'Fraunces',serif; font-weight:600; font-size:19px; color:#14586B; line-height:1.2;">Corporate &amp; catering</div><p style="margin:5px 0 0; font-size:13px; line-height:1.5; color:rgba(20,58,64,.6);">Live stations and boba bars brought to your venue, anywhere nearby.</p></div>
+          </div>
+        </div>
+
+        <!-- inquiry form -->
+        <div data-events-in style="position:relative; background:linear-gradient(160deg,#FFFFFF,#FBF6EA); border:1px solid rgba(31,122,140,.16); border-radius:26px; padding:clamp(22px,3.4vw,34px); box-shadow:0 20px 50px rgba(20,58,64,.1);">
+          <!--
+            WEB3FORMS: replace the access_key value below with your key from https://web3forms.com
+            (free — enter your inbox email, they email you an access key; no account/server needed).
+            Submissions are sent to whatever inbox that key is registered to.
+          -->
+          <form id="events-form" action="https://api.web3forms.com/submit" method="POST" novalidate>
+            <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY">
+            <input type="hidden" name="subject" value="New Events &amp; Catering inquiry — La Playa Blanca">
+            <input type="hidden" name="from_name" value="La Playa Blanca website">
+            <!-- honeypot: bots fill this, humans never see it -->
+            <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+            <div class="grid">
+              <div><label for="ev-name">Your name</label><input class="fld" id="ev-name" type="text" name="name" required autocomplete="name" placeholder="Full name"></div>
+              <div><label for="ev-email">Email</label><input class="fld" id="ev-email" type="email" name="email" required autocomplete="email" placeholder="you@email.com"></div>
+              <div><label for="ev-phone">Phone / WhatsApp</label><input class="fld" id="ev-phone" type="tel" name="phone" autocomplete="tel" placeholder="+961 …"></div>
+              <div><label for="ev-type">Event type</label><select class="fld" id="ev-type" name="event_type"><option value="Wedding">Wedding</option><option value="Engagement">Engagement</option><option value="Birthday">Birthday</option><option value="Private party">Private party</option><option value="Corporate event">Corporate event</option><option value="Other">Something else</option></select></div>
+              <div><label for="ev-date">Event date</label><input class="fld" id="ev-date" type="date" name="event_date"></div>
+              <div><label for="ev-guests">Guests (approx.)</label><input class="fld" id="ev-guests" type="number" name="guests" min="1" inputmode="numeric" placeholder="e.g. 80"></div>
+              <div class="col2"><label for="ev-msg">Tell us about it</label><textarea class="fld" id="ev-msg" name="message" placeholder="Location, vibe, what you're dreaming of — crêpe station, boba bar, dessert table…"></textarea></div>
+            </div>
+
+            <button id="events-submit" type="submit" data-cursor="grow" data-magnetic="1" style="margin-top:18px; width:100%; display:inline-flex; align-items:center; justify-content:center; gap:9px; cursor:none; border:none; padding:16px; border-radius:16px; background:#E8A44C; color:#14586B; font-family:'Manrope',sans-serif; font-weight:800; font-size:15px; letter-spacing:.3px; box-shadow:0 12px 28px rgba(232,164,76,.4); will-change:transform;">
+              <span class="lbl">Send inquiry</span>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+            <p style="margin:12px 0 0; text-align:center; font-family:'Manrope',sans-serif; font-size:11.5px; color:rgba(20,58,64,.5);">We usually reply within a day. Or reach us on <a href="https://instagram.com/la.playa.blanca" target="_blank" rel="noopener" data-cursor="link" style="color:#1F7A8C; font-weight:700; text-decoration:none; cursor:none;">Instagram</a>.</p>
+            <p id="events-error" role="alert" style="display:none; margin:12px 0 0; text-align:center; font-family:'Manrope',sans-serif; font-size:13px; line-height:1.45; color:#c0455f; background:rgba(231,96,122,.1); border:1px solid rgba(231,96,122,.28); border-radius:12px; padding:11px 14px;"></p>
+          </form>
+
+          <!-- success state (revealed by JS) -->
+          <div id="events-success" style="display:none; text-align:center; padding:20px 8px;">
+            <div style="display:grid; place-items:center; width:64px; height:64px; margin:0 auto 16px; border-radius:50%; background:rgba(168,198,134,.22); color:#6f9e57;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <h3 style="margin:0 0 8px; font-family:'Fraunces',serif; font-weight:600; font-size:28px; color:#1F7A8C;">Inquiry sent — gracias!</h3>
+            <p style="margin:0 auto; max-width:300px; font-family:'Manrope',sans-serif; font-size:14px; line-height:1.55; color:rgba(20,58,64,.66);">We&rsquo;ve got your details and will be in touch soon to plan your event. See you at the beach.</p>
           </div>
         </div>
       </div>
@@ -563,6 +644,7 @@ class Component extends DCLogic {
       if (self._initActs) self._initActs();
       self._initMenuGrid();
       self._initBuilder();
+      self._initEvents();
       self._initOutro();
       self._initVideoSync();
       self._initIntro();
@@ -1062,6 +1144,40 @@ class Component extends DCLogic {
     gsap.from(sec.querySelectorAll('[data-build-in]'), { autoAlpha: 0, y: 32, stagger: 0.09, duration: 0.6, ease: 'power2.out', scrollTrigger: { trigger: sec, start: 'top 62%' } });
     this._priceShown = this._buildPrice();
   }
+
+  // ---------- Events & Catering inquiry (Web3Forms, no backend) ----------
+  _initEvents() {
+    var self = this, gsap = window.gsap;
+    var sec = document.getElementById('events'); if (!sec) return;
+    if (gsap && !self.reduced) gsap.from(sec.querySelectorAll('[data-events-in]'), { autoAlpha: 0, y: 32, stagger: 0.09, duration: 0.6, ease: 'power2.out', scrollTrigger: { trigger: sec, start: 'top 70%' } });
+    var form = document.getElementById('events-form'); if (!form || form._bound) return; form._bound = true;
+    var ok = document.getElementById('events-success');
+    var err = document.getElementById('events-error');
+    var btn = document.getElementById('events-submit');
+    var lbl = btn ? btn.querySelector('.lbl') : null;
+    var fail = function (msg) { if (btn) btn.disabled = false; if (lbl) lbl.textContent = 'Send inquiry'; if (err) { err.textContent = msg; err.style.display = 'block'; } };
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (err) err.style.display = 'none';
+      var keyEl = form.querySelector('[name=access_key]');
+      var key = keyEl ? keyEl.value : '';
+      if (!key || /YOUR_WEB3FORMS/.test(key)) {
+        console.warn('[events] Web3Forms access key not set — drop your key into the access_key hidden input to receive submissions.');
+        fail('Our inquiry form isn’t quite live yet — please reach us on Instagram or by phone and we’ll plan your event.');
+        return;
+      }
+      if (btn) btn.disabled = true; if (lbl) lbl.textContent = 'Sending…';
+      fetch('https://api.web3forms.com/submit', { method: 'POST', body: new FormData(form) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (j && j.success) {
+            var reveal = function () { form.style.display = 'none'; if (ok) { ok.style.display = 'block'; if (gsap && !self.reduced) gsap.from(ok, { autoAlpha: 0, y: 16, scale: 0.96, duration: 0.5, ease: 'back.out(1.5)' }); } };
+            if (gsap && !self.reduced) gsap.to(form, { autoAlpha: 0, y: -8, duration: 0.3, onComplete: reveal }); else reveal();
+          } else { fail((j && j.message) || 'Something went wrong — please try again.'); }
+        })
+        .catch(function () { fail('Network hiccup — please try again, or reach us on Instagram.'); });
+    });
+  }
   _rollPrice() {
     var gsap = window.gsap, el = document.getElementById('build-price');
     var target = this._buildPrice();
@@ -1541,6 +1657,7 @@ class Component extends DCLogic {
       onNavMenu: function (e) { e && e.preventDefault(); self._scrollTo('#menu'); },
       onNavGallery: function (e) { e && e.preventDefault(); self._scrollTo('#gallery'); },
       onNavBuilder: function (e) { e && e.preventDefault(); self._scrollTo('#builder'); },
+      onNavEvents: function (e) { e && e.preventDefault(); self._scrollTo('#events'); },
       onNavVisit: function (e) { e && e.preventDefault(); self._scrollTo('#outro'); },
 
       // chapters
