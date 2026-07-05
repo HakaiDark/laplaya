@@ -290,7 +290,7 @@
       <div style="text-align:center; max-width:720px; margin:0 auto clamp(26px,4vh,42px);">
         <span style="display:inline-flex; align-items:center; padding:8px 16px; border-radius:999px; background:rgba(31,122,140,.08); border:1px solid rgba(31,122,140,.2); color:#1F7A8C; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px; letter-spacing:2.6px; text-transform:uppercase;">The Full Board</span>
         <h2 style="margin:16px 0 10px; font-family:'Fraunces',serif; font-weight:600; font-size:clamp(38px,6vw,82px); line-height:.96; color:#1F7A8C; letter-spacing:-.01em;">Everything, à la playa</h2>
-        <p style="margin:0; font-family:'Manrope',sans-serif; font-size:clamp(14px,1.6vw,17px); line-height:1.55; color:rgba(20,58,64,.72);">Pancakes to boba, juices to scoops — every one a signature. <strong style="color:#14586B; font-weight:700;">Pick a category</strong> and fan out the deck; tap a card to add it.</p>
+        <p style="margin:0; font-family:'Manrope',sans-serif; font-size:clamp(14px,1.6vw,17px); line-height:1.55; color:rgba(20,58,64,.72);">Pancakes to boba, juices to scoops — every one a signature. <strong style="color:#14586B; font-weight:700;">Pick a category</strong>, swipe through the deck, and hit <strong style="color:#14586B; font-weight:700;">Add</strong> on the one that calls you.</p>
       </div>
 
       <!-- category pills (sticky) -->
@@ -327,20 +327,11 @@
           </sc-for>
         </div>
 
-        <!-- pagination (only when a category has more than 7 cards) -->
-        <sc-if value="{{ fanPaginate }}">
-          <div style="display:flex; align-items:center; justify-content:center; gap:16px; margin-top:clamp(14px,3vh,28px);">
-            <button onClick="{{ onFanPrev }}" data-cursor="grow" aria-label="Previous" style="display:grid; place-items:center; width:46px; height:46px; border-radius:999px; border:1.5px solid rgba(31,122,140,.22); background:rgba(31,122,140,.06); color:#1F7A8C; cursor:none; box-shadow:0 6px 18px rgba(20,58,64,.08);" style-hover="background:#1F7A8C; color:#F5F1E3; transform:translateY(-1px)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
-            <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap; justify-content:center; max-width:340px;">
-              <sc-for list="{{ fanDots }}" as="d" hint-placeholder-count="0"><span style="{{ d.style }}"></span></sc-for>
-            </div>
-            <button onClick="{{ onFanNext }}" data-cursor="grow" aria-label="Next" style="display:grid; place-items:center; width:46px; height:46px; border-radius:999px; border:1.5px solid rgba(31,122,140,.22); background:rgba(31,122,140,.06); color:#1F7A8C; cursor:none; box-shadow:0 6px 18px rgba(20,58,64,.08);" style-hover="background:#1F7A8C; color:#F5F1E3; transform:translateY(-1px)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-            </button>
-          </div>
-        </sc-if>
+        <!-- deck position dots — no arrows (owner request), no sc-if (kept stale DOM on device).
+             Always rendered: the count exactly matches the category; swipe or tap a side card to browse. -->
+        <div style="display:flex; align-items:center; justify-content:center; gap:7px; flex-wrap:wrap; max-width:360px; margin:clamp(14px,3vh,28px) auto 0;">
+          <sc-for list="{{ fanDots }}" as="d" hint-placeholder-count="5"><span style="{{ d.style }}"></span></sc-for>
+        </div>
       </div>
     </section>
 
@@ -1793,21 +1784,27 @@ class Component extends DCLogic {
     var _vmap = self._fanVisibleMap(_fc, fanItems.length);
     var _slotCount = fanPaginate ? 7 : fanItems.length;
     var _mult = self._fanMult();
-    var _fanBase = 'position:absolute; left:50%; top:50%; width:212px; height:300px; margin:-150px 0 0 -106px; cursor:none; transition:transform .55s cubic-bezier(.2,.8,.2,1), opacity .45s ease; will-change:transform;';
+    // NO will-change here: with 26-card categories it forced 26 permanent GPU layers, blowing
+    // iOS Safari's layer budget — cards visibly dropped/re-composited mid-swipe ("half in half").
+    // Transitions promote layers transiently, which is all the animation needs. Hidden cards get
+    // visibility:hidden so the engine skips them entirely (it flips after the fade via transition).
+    var _fanBase = 'position:absolute; left:50%; top:50%; width:212px; height:300px; margin:-150px 0 0 -106px; cursor:none; transition:transform .55s cubic-bezier(.2,.8,.2,1), opacity .45s ease, visibility .45s;';
     fanItems.forEach(function (it, i) {
       var slot = _vmap[i];
       if (slot === undefined) {
-        it.slotStyle = _fanBase + ' opacity:0; pointer-events:none; z-index:0; transform:scale(.4);';
+        it.slotStyle = _fanBase + ' opacity:0; visibility:hidden; pointer-events:none; z-index:0; transform:scale(.4);';
       } else if (!fanPaginate && st.fanPreview === it.id) {
-        // touch preview: first tap raised this card front-and-centre; next tap adds it
-        it.slotStyle = _fanBase + ' opacity:1; pointer-events:auto; z-index:40; transform:translate(0px,-24px) rotate(0deg) scale(1.06);';
+        // touch preview: first tap raised this card front-and-centre; the Add pill confirms
+        it.slotStyle = _fanBase + ' opacity:1; visibility:visible; pointer-events:auto; z-index:40; transform:translate(0px,-24px) rotate(0deg) scale(1.06);';
       } else {
         var cf = self._fanSlotConfig(_slotCount, slot);
-        it.slotStyle = _fanBase + ' opacity:1; pointer-events:auto; z-index:' + cf.z + '; transform:translate(' + (cf.x * _mult).toFixed(1) + 'px,' + (cf.y * _mult).toFixed(1) + 'px) rotate(' + cf.rot + 'deg) scale(' + cf.sc + ');';
+        it.slotStyle = _fanBase + ' opacity:1; visibility:visible; pointer-events:auto; z-index:' + cf.z + '; transform:translate(' + (cf.x * _mult).toFixed(1) + 'px,' + (cf.y * _mult).toFixed(1) + 'px) rotate(' + cf.rot + 'deg) scale(' + cf.sc + ');';
       }
     });
+    // one dot per item of the CURRENT category, always; the front card's dot stretches
+    var _frontIdx = fanPaginate ? fanCenter : ((fanItems.length - 1) >> 1);
     var fanDots = fanItems.map(function (_, i) {
-      var a = i === fanCenter;
+      var a = i === _frontIdx;
       return { i: i, style: { width: a ? '22px' : '8px', height: '8px', borderRadius: '999px', background: a ? '#1F7A8C' : 'rgba(31,122,140,.24)', transition: 'width .3s, background-color .3s' } };
     });
     var fanFrondStyle = { position: 'absolute', top: '-14px', right: '-12px', width: '96px', height: '96px', backgroundImage: frondBg, backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', opacity: 0.12, transform: 'rotate(8deg)', pointerEvents: 'none', zIndex: 1 };
@@ -1887,18 +1884,16 @@ class Component extends DCLogic {
           if (rail.scrollTo) rail.scrollTo({ left: left, behavior: 'smooth' }); else rail.scrollLeft = left;
         }
       },
-      // card BODY: browse only — never adds (mistouch-proof). Touch taps on a side card bring it
-      // front-and-centre; the front card's body and all desktop body clicks are inert (hover
-      // already showcases on desktop). Adding is exclusively the Add pill (onFanAdd).
+      // card BODY: browse only — never adds (mistouch-proof). A side card cycles itself
+      // front-and-centre on tap AND click (arrows are gone, this is the navigation now, along
+      // with swipe on touch). Adding is exclusively the Add pill (onFanAdd).
       onFanBrowse: function (e) {
         if (e) { e.preventDefault && e.preventDefault(); }
-        var coarse = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
-        if (!coarse) return;
         var id = e.currentTarget.getAttribute('data-id');
         var pos = self._fanSlotOf(id);
         if (pos && pos.slot !== undefined && pos.slot !== pos.centerSlot) {
           if (pos.paginate) self._fanCycleBy(pos.slot - pos.centerSlot);
-          else if (st.fanPreview !== id) self.setState({ fanPreview: id });
+          else if ((window.matchMedia && window.matchMedia('(pointer:coarse)').matches) && st.fanPreview !== id) self.setState({ fanPreview: id });
         }
       },
       onFanAdd: function (e) {
@@ -1906,8 +1901,6 @@ class Component extends DCLogic {
         var it = self._byId(e.currentTarget.getAttribute('data-id'));
         if (it) { self.addToCart(it, e); if (st.fanPreview) self.setState({ fanPreview: null }); }
       },
-      onFanPrev: function () { self._fanCycle('left'); },
-      onFanNext: function () { self._fanCycle('right'); },
 
       // cart drawer
       cartItems: cartItems,
