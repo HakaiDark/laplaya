@@ -1,16 +1,20 @@
 /* La Playa Blanca — menu data
    Sourced 1:1 from "La Playa Blanca - Menu.md". Items are NOT invented.
-   Names/prices are verbatim; short descriptions + tags are card copy only.
+   Bubble Waffle / N Cup / Matcha added Jul 2026 straight from the owner (names & prices verbatim).
+   Short descriptions + tags are card copy only.
    Exposes window.LPB_MENU = { categories, items } and fires 'lpb-menu-ready'. */
 (function () {
-  // category filter order exactly as on the live menu
-  var CATEGORIES = ['All Items', 'Pancake', 'Crêpe', 'Waffle', 'Smoothies', 'Fresh Juice', 'Shakes', 'BOBA', 'Ice Cream'];
+  // category filter order exactly as on the live menu — desserts first, then drinks
+  var CATEGORIES = ['All Items', 'Pancake', 'Crêpe', 'Waffle', 'Bubble Waffle', 'N Cup', 'Smoothies', 'Fresh Juice', 'Shakes', 'Matcha', 'BOBA', 'Ice Cream'];
 
   // [name, price]  (price null = "Order Now" only, no price yet)
   var RAW = {
     'Pancake': [['Nutella', 6], ['Oreo', 6.5], ['Kinder', 6.5], ['Snickers', 6.5], ['Brownie', 6.5], ['Playa Blanca', 8.5], ['Arequipe', 5], ['Crispy', 7], ['Lotus', 7.5], ['Fruits', 7.5]],
     'Crêpe': [['Nutella', 6], ['Oreo', 7], ['Kinder', 7], ['Snickers', 6.5], ['Brownie', 6.5], ['Fruits', 7], ['Fettuccine', 6.5], ['Playa Blanca', 7], ['Arequipe', 6], ['Crispy', 7], ['Barbie', 6.5], ['Flio', 6], ['Lotus', 6.5], ['Sushi', 5], ['Marshmallow', 6], ['Sushi Brownie', 6.5]],
     'Waffle': [['Nutella', 6.5], ['Oreo', 7], ['Kinder', 7], ['Snickers', 7], ['Brownie', 7], ['Fruits', 8], ['Playa Blanca', 8], ['Arequipe', 6], ['Crispy', 8], ['Lotus', 7.5], ['Cheese cake', 9]],
+    'Bubble Waffle': [['Fruits', 8], ['Kinder', 7.5], ['Lotus', 8], ['Arequipe', 8], ['Nutella', 7.5]],
+    'N Cup': [['Oreo Cheesecake', 7], ['Strawberry Cheesecake', 6], ['Brownie', 5], ['Lotus Cheesecake', 7], ['Crunchy N Cup', 6], ['Dubai N Cup', 7]],
+    'Matcha': [['Vanilla Matcha', 3.89], ['Strawberry Matcha', 3.89], ['Drama Queen Matcha', 3.89], ['Passion Lemon Matcha', 5], ['Coconut Cloud Matcha', 4.44], ['Matcha Latte', 3.89], ['Blueberry Matcha', 5], ['Matcha Coffee', 3], ['White Pistachio Matcha', 3.89]],
     'Smoothies': [['Strawberry', 3], ['Mango', 3], ['Caramel', 3], ['Nutella with strawberry', 3.5], ['Blueberry', 3], ['Banana', 3]],
     'Fresh Juice': [['Orange', 3], ['Carrot', 3], ['Apple', 3], ['Strawberry', 3.5], ['Lemonada', 3], ['Cocktail pieces fresh', 6], ['Cocktail juice fresh', 4], ['Cocktail pieces & avocado', 6], ['Orange & strawberry', 3.5], ['Banana with milk', 3.5], ['Blue hawaii', 4], ['Avocado', 7], ['Polo fresh', 3.5]],
     'Shakes': [['Lotus', 3], ['Nutella', 3], ['Red velvet', 3], ['Kinder', 3], ['Snickers', 3], ['Marshmallow', 3], ['Bubble Gum', 3], ['Arequipe', 3], ['Caramel', 3], ['Cookies', 3], ['Mocha', 3], ['Cerlac', 3], ['Trix', 3], ['Playa Blanca', 3], ['Churro', 5]],
@@ -89,13 +93,30 @@
     'Cotton Candy (Topping)': 'Cloud of spun cotton candy',
     'Biscuit (Topping)': 'Crushed biscuit topping',
     'Croissant': 'Ice-cream stuffed croissant',
-    'Blanca ice cream': 'Our house Blanca scoop'
+    'Blanca ice cream': 'Our house Blanca scoop',
+    'Vanilla Matcha': 'Creamy vanilla over stone-ground matcha',
+    'Strawberry Matcha': 'Fresh strawberry swirled into green matcha',
+    'Drama Queen Matcha': 'Our boldest matcha — extra everything',
+    'Passion Lemon Matcha': 'Passion fruit and lemon, a zesty matcha',
+    'Coconut Cloud Matcha': 'Coconut cream floating on smooth matcha',
+    'Matcha Latte': 'Classic matcha and milk, gently sweet',
+    'Blueberry Matcha': 'Wild blueberry beneath vivid green matcha',
+    'Matcha Coffee': 'Matcha meets coffee — the best of both',
+    'White Pistachio Matcha': 'White chocolate and pistachio in matcha',
+    'Oreo Cheesecake': 'Oreo cheesecake layered in a cup',
+    'Strawberry Cheesecake': 'Strawberry cheesecake, cool in a cup',
+    'Lotus Cheesecake': 'Biscoff cheesecake, spiced and smooth',
+    'Crunchy N Cup': 'Layers of crunch, cream and chocolate',
+    'Dubai N Cup': 'Pistachio–kunafa chocolate, Dubai style'
   };
 
   var CAT_DESC = {
     'Pancake': 'Fluffy stacked pancakes, your way',
     'Crêpe': 'Thin French crêpe, folded and filled',
     'Waffle': 'Crisp Belgian waffle, loaded high',
+    'Bubble Waffle': 'Hong Kong bubble waffle, rolled and loaded',
+    'N Cup': 'Layered dessert cups, spoon-ready',
+    'Matcha': 'Stone-ground matcha, iced and creamy',
     'Smoothies': 'Blended fresh, thick and cold',
     'Fresh Juice': 'Pressed fresh, nothing added',
     'Shakes': 'Thick blended shake, extra cold',
@@ -108,6 +129,9 @@
     'Pancake': { icon: 'pancake', temp: 'Warm' },
     'Crêpe': { icon: 'crepe', temp: 'Warm' },
     'Waffle': { icon: 'waffle', temp: 'Warm' },
+    'Bubble Waffle': { icon: 'waffle', temp: 'Warm' },
+    'N Cup': { icon: 'glass', temp: 'Cold' },
+    'Matcha': { icon: 'shake', temp: 'Iced' },
     'Smoothies': { icon: 'glass', temp: 'Iced' },
     'Fresh Juice': { icon: 'juice', temp: 'Fresh' },
     'Shakes': { icon: 'shake', temp: 'Iced' },
@@ -115,7 +139,7 @@
     'Ice Cream': { icon: 'scoop', temp: 'Cold' }
   };
 
-  var NUTTY = { 'Nutella': 1, 'Kinder': 1, 'Snickers': 1, 'Nutella with strawberry': 1 };
+  var NUTTY = { 'Nutella': 1, 'Kinder': 1, 'Snickers': 1, 'Nutella with strawberry': 1, 'White Pistachio Matcha': 1, 'Dubai N Cup': 1 };
 
   function slug(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
 
