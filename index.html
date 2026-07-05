@@ -47,7 +47,6 @@
   #fan-deck{ touch-action:pan-y; }
   /* burger appears exactly where the nav links hide (see navResp, 860px) */
   @media (max-width:859px){ #nav-burger{ display:grid !important; } }
-  [data-cards]::-webkit-scrollbar{ display:none; }
   #menu-pills::-webkit-scrollbar{ display:none; }
   /* iOS URL bar: svh = stable small-viewport height, so hero content (scroll cue) and the outro
      footer are never hidden behind the collapsed toolbar. Pinned chapters stay 100vh — the bar is
@@ -65,12 +64,6 @@
     #menu-pills button{ padding:8px 13px !important; font-size:12.5px !important; flex:0 0 auto; scroll-snap-align:center; }
     /* FAN deck — shrink so the active card centres without a big empty gap */
     #fan-deck{ height:342px !important; }
-    /* CHAPTER card rows — native carousel feel: each dessert card snaps centred */
-    [data-cards]{ scroll-snap-type:x mandatory; scroll-padding:0 16px; scrollbar-width:none; }
-    [data-cards] [data-card]{ scroll-snap-align:center; }
-    /* CHAPTER cards — big backdrop blurs repaint every scrubbed frame on phone GPUs;
-       trade blur radius for a slightly more opaque glass so it stays readable AND smooth */
-    [data-card]{ backdrop-filter:blur(9px) saturate(1.25) !important; -webkit-backdrop-filter:blur(9px) saturate(1.25) !important; background:linear-gradient(158deg, rgba(31,122,140,.5), rgba(20,58,64,.46)) !important; }
     /* CHAPTER intro line — right-aligned ragged text reads poorly once it wraps under the kicker */
     .ch-intro{ text-align:left !important; font-size:14px !important; max-width:340px !important; }
     /* EVENTS form — iOS zooms the whole page onto any focused input under 16px */
@@ -261,24 +254,8 @@
           <span style="display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:999px; background:rgba(245,241,227,.16); border:1px solid rgba(245,241,227,.3); color:#F5F1E3; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px; letter-spacing:2.6px; text-transform:uppercase; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);">{{ ch.kicker }}</span>
           <p class="ch-intro" style="max-width:360px; margin:0; text-align:right; font-family:'Fraunces',serif; font-style:italic; font-weight:400; font-size:clamp(15px,2vw,22px); line-height:1.35; color:#F5F1E3; text-shadow:0 2px 14px rgba(0,0,0,.4);">{{ ch.intro }}</p>
         </div>
-        <div data-cards style="display:flex; gap:clamp(14px,1.6vw,22px); align-items:stretch; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; padding-bottom:4px; scrollbar-width:none; -ms-overflow-style:none;">
-          <sc-for list="{{ ch.items }}" as="it" hint-placeholder-count="3">
-            <div data-card style="position:relative; flex:0 0 auto; width:min(320px,78vw); padding:24px 22px 22px; border-radius:24px; background:linear-gradient(158deg, rgba(31,122,140,.36), rgba(20,58,64,.3)); backdrop-filter:blur(18px) saturate(1.35); -webkit-backdrop-filter:blur(18px) saturate(1.35); border:1px solid rgba(245,241,227,.3); box-shadow:0 24px 60px rgba(12,44,54,.34); color:#F5F1E3; overflow:hidden; will-change:transform;">
-              <!-- IMAGE SLOT (highlight card): to add a real photo later, drop
-                   <img src="photo.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.92"> as the FIRST child; layout already reserves the frame. -->
-              <div style="position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px;">
-                <span style="display:grid; place-items:center; width:44px; height:44px; border-radius:13px; background:rgba(245,241,227,.14); border:1px solid rgba(245,241,227,.2); color:#F5F1E3;">{{ it.iconEl }}</span>
-                <span style="font-family:'Manrope',sans-serif; font-weight:800; font-size:20px; color:#F0D9A8;">{{ it.priceLabel }}</span>
-              </div>
-              <h3 style="position:relative; margin:16px 0 7px; font-family:'Fraunces',serif; font-weight:600; font-size:29px; line-height:1; color:#FBF7EC;">{{ it.name }}</h3>
-              <p style="position:relative; margin:0 0 16px; font-size:13px; line-height:1.5; color:rgba(245,241,227,.82);">{{ it.desc }}</p>
-              <div style="position:relative; display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:18px;">
-                <sc-for list="{{ it.tags }}" as="tg" hint-placeholder-count="2"><span style="padding:5px 10px; border-radius:999px; background:rgba(245,241,227,.13); border:1px solid rgba(245,241,227,.22); font-size:10px; font-weight:700; letter-spacing:.6px; color:rgba(245,241,227,.9); text-transform:uppercase;">{{ tg }}</span></sc-for>
-              </div>
-              <button data-id="{{ it.id }}" onClick="{{ onAddClick }}" data-cursor="grow" style="position:relative; display:inline-flex; align-items:center; gap:7px; cursor:none; border:none; padding:12px 20px; border-radius:999px; background:#F5F1E3; color:#14586B; font-family:'Manrope',sans-serif; font-weight:800; font-size:13px; letter-spacing:.3px; box-shadow:0 8px 20px rgba(12,44,54,.28);">Add <span style="font-size:16px; line-height:1;">+</span></button>
-            </div>
-          </sc-for>
-        </div>
+        <!-- (chapter item cards removed by request — chapters are pure cinema: title + video;
+             every dish lives in the fan deck menu below) -->
       </div>
     </section>
   </sc-for>
@@ -1139,7 +1116,6 @@ class Component extends DCLogic {
     secs.forEach(function (sec) {
       var idx = parseInt(sec.getAttribute('data-chapter'), 10);
       var title = sec.querySelector('[data-cht]');
-      var cards = sec.querySelectorAll('[data-card]');
       var mobile = window.innerWidth < 820;
       var last = idx >= lastIdx;
       // scene + zoom are computed straight from THIS chapter's own progress → monotonic, no shared state
@@ -1155,12 +1131,7 @@ class Component extends DCLogic {
         }
       } });
       if (title) tl.fromTo(title, { '--p': '0%', xPercent: idx % 2 ? 7 : -7 }, { '--p': '100%', xPercent: idx % 2 ? -11 : 11, ease: 'none', duration: 1.5 }, 0);
-      // fromTo, NOT from: with invalidateOnRefresh, a from() re-captures its destination from the
-      // DOM after the boot refresh — by then immediateRender has already hidden the cards, so it
-      // recorded 0 -> 0 and the cards never appeared. Explicit endpoints are invalidate-proof.
-      tl.fromTo(cards, { yPercent: 26, autoAlpha: 0, rotate: -2.5 }, { yPercent: 0, autoAlpha: 1, rotate: 0, stagger: 0.14, ease: 'power3.out', duration: 0.7 }, 0.25);
       tl.to({}, { duration: 0.6 });
-      if (!last) tl.to(cards, { autoAlpha: 0, yPercent: -18, stagger: 0.05, duration: 0.55 });
       if (tl.scrollTrigger) self._triggers.push(tl.scrollTrigger);
     });
   }
@@ -1279,22 +1250,28 @@ class Component extends DCLogic {
   _initEvents() {
     var self = this, gsap = window.gsap;
     var sec = document.getElementById('events'); if (!sec) return;
+    // Phones: Lenis doesn't smooth touch scroll (smoothTouch:false), so scrub:true snaps the
+    // parallax to raw scroll events during flick momentum => visible shake/steps. scrub:1 lerps
+    // each layer toward its target every frame instead, which restores buttery motion there.
+    // Desktop already scrolls through Lenis, so instant scrub stays perfectly smooth.
+    var coarseEv = window.innerWidth < 820 || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+    var evScrub = coarseEv ? 1 : true;
     if (gsap && !self.reduced) gsap.from(sec.querySelectorAll('[data-events-in]'), { autoAlpha: 0, y: 32, stagger: 0.09, duration: 0.6, ease: 'power2.out', scrollTrigger: { trigger: sec, start: 'top 70%' } });
     // layered dolly: backdrop eases toward the arch while the foreground palms sweep past faster => depth of "walking up the aisle"
     var bg = document.getElementById('events-bg');
     if (bg && gsap && !self.reduced) {
-      var t = gsap.fromTo(bg, { scale: 1.06 }, { scale: 1.24, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: true } });
+      var t = gsap.fromTo(bg, { scale: 1.06 }, { scale: 1.24, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: evScrub } });
       if (t.scrollTrigger) self._triggers.push(t.scrollTrigger);
     }
     var fg = document.getElementById('events-fg');
     if (fg && gsap && !self.reduced) {
-      var tf = gsap.fromTo(fg, { scale: 1, yPercent: 0 }, { scale: 1.6, yPercent: -5, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: true } });
+      // gentler magnification on phones — blowing the palm texture up 1.6x shimmers on mobile GPUs
+      var tf = gsap.fromTo(fg, { scale: 1, yPercent: 0 }, { scale: coarseEv ? 1.35 : 1.6, yPercent: coarseEv ? -4 : -5, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: evScrub } });
       if (tf.scrollTrigger) self._triggers.push(tf.scrollTrigger);
     }
     // focus-pull: the backdrop starts soft and sharpens as you arrive at the arch.
     // Desktop-only: animating blur() re-rasterizes the full-viewport image every scroll frame,
     // which stutters on phone GPUs — the scale-dolly + vignette carry the depth there.
-    var coarseEv = window.innerWidth < 820 || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
     if (bg && gsap && !self.reduced && !coarseEv) {
       var foc = { b: 5 };
       var tb = gsap.to(foc, { b: 0, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'center center', scrub: true }, onUpdate: function () { bg.style.filter = foc.b > 0.06 ? 'blur(' + foc.b.toFixed(2) + 'px)' : 'none'; } });
@@ -1303,12 +1280,14 @@ class Component extends DCLogic {
     // vignette opens (edges clear) as you scroll toward the arch/form
     var vig = document.getElementById('events-vig');
     if (vig && gsap && !self.reduced) {
-      var tv = gsap.fromTo(vig, { opacity: 0.82 }, { opacity: 0.22, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'center center', scrub: true } });
+      var tv = gsap.fromTo(vig, { opacity: 0.82 }, { opacity: 0.22, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'center center', scrub: evScrub } });
       if (tv.scrollTrigger) self._triggers.push(tv.scrollTrigger);
     }
-    // content counter-parallax: the cards/form drift a touch faster than the scene for depth between UI and backdrop
+    // content counter-parallax: the cards/form drift a touch faster than the scene for depth.
+    // Desktop-only — on phones this moves the exact content the thumb is scrolling, and the
+    // one-frame lag between touch scroll and the transform reads as judder/tearing.
     var content = document.getElementById('events-content');
-    if (content && gsap && !self.reduced) {
+    if (content && gsap && !self.reduced && !coarseEv) {
       var tc = gsap.fromTo(content, { yPercent: 3 }, { yPercent: -5, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: true } });
       if (tc.scrollTrigger) self._triggers.push(tc.scrollTrigger);
     }
@@ -1855,11 +1834,10 @@ class Component extends DCLogic {
 
       // chapters
       chapters: [
-        { key: 'crepe', idx: 0, label: 'Crêpe Chapter', kicker: 'Chapter One', title: 'Crêpes', intro: 'Thin, folded, drizzled — the French classic with a Playa twist.', items: self._pick('Crêpe', ['Nutella', 'Playa Blanca', 'Lotus']) },
-        { key: 'waffle', idx: 1, label: 'Waffle Chapter', kicker: 'Chapter Two', title: 'Waffles', intro: 'Crisp Belgian squares, loaded high and pouring with chocolate.', items: self._pick('Waffle', ['Nutella', 'Playa Blanca', 'Cheese cake']) },
-        { key: 'smoothie', idx: 2, label: 'Smoothie Chapter', kicker: 'Chapter Three', title: 'Smoothies', intro: 'Blended fruit, thick and cold, poured at the beach bar.', items: self._pick('Smoothies', ['Strawberry', 'Mango', 'Nutella with strawberry']) }
+        { key: 'crepe', idx: 0, label: 'Crêpe Chapter', kicker: 'Chapter One', title: 'Crêpes', intro: 'Thin, folded, drizzled — the French classic with a Playa twist.' },
+        { key: 'waffle', idx: 1, label: 'Waffle Chapter', kicker: 'Chapter Two', title: 'Waffles', intro: 'Crisp Belgian squares, loaded high and pouring with chocolate.' },
+        { key: 'smoothie', idx: 2, label: 'Smoothie Chapter', kicker: 'Chapter Three', title: 'Smoothies', intro: 'Blended fruit, thick and cold, poured at the beach bar.' }
       ],
-      onAddClick: function (e) { if (e) { e.preventDefault && e.preventDefault(); e.stopPropagation && e.stopPropagation(); } var it = self._byId(e.currentTarget.getAttribute('data-id')); if (it) self.addToCart(it, e); },
 
       // full menu (fan deck)
       cats: cats,
