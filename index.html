@@ -45,6 +45,8 @@
   /* fan deck: we handle horizontal swipes ourselves — tell the browser to only own vertical pans
      so the first touchmove is still cancelable and the gesture never fights page scroll */
   #fan-deck{ touch-action:pan-y; }
+  /* burger appears exactly where the nav links hide (see navResp, 860px) */
+  @media (max-width:859px){ #nav-burger{ display:grid !important; } }
   [data-cards]::-webkit-scrollbar{ display:none; }
   #menu-pills::-webkit-scrollbar{ display:none; }
   /* iOS URL bar: svh = stable small-viewport height, so hero content (scroll cue) and the outro
@@ -183,8 +185,40 @@
       <span>Cart</span>
       <span id="cart-badge" style="min-width:20px; height:20px; padding:0 5px; display:{{ cartBadgeDisplay }}; align-items:center; justify-content:center; border-radius:999px; background:#E7607A; color:#F5F1E3; font-size:11px; font-weight:800;">{{ cartCount }}</span>
     </button>
+    <button id="nav-burger" onClick="{{ onToggleNav }}" data-cursor="grow" aria-label="Menu" style="display:none; place-items:center; width:42px; height:42px; border-radius:13px; border:1px solid rgba(245,241,227,.32); background:rgba(245,241,227,.12); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); color:#F5F1E3; cursor:none; flex:0 0 auto;">
+      <svg style="display:{{ burgerMenuDisplay }}" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      <svg style="display:{{ burgerCloseDisplay }}" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
   </div>
 </nav>
+
+<!-- ============ MOBILE NAV OVERLAY (phones/tablets — the inline links hide below 860px) ============
+     Sits UNDER the nav bar (z 150 < 200) so the logo, cart and burger/X stay tappable on top. -->
+<div id="mnav" style="position:fixed; inset:0; z-index:150; display:flex; flex-direction:column; justify-content:center; padding:calc(96px + env(safe-area-inset-top, 0px)) clamp(26px,9vw,54px) calc(30px + env(safe-area-inset-bottom, 0px)); background:linear-gradient(175deg, rgba(12,44,54,.97) 0%, rgba(20,88,107,.96) 100%); backdrop-filter:blur(16px) saturate(1.2); -webkit-backdrop-filter:blur(16px) saturate(1.2); opacity:{{ mnavOpacity }}; pointer-events:{{ mnavEvents }}; transition:opacity .45s ease;">
+  <span style="font-family:'Manrope',sans-serif; font-weight:700; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#E8A44C; margin-bottom:18px; opacity:{{ mnavLinkO }}; transform:{{ mnavLinkT }}; transition:transform .5s cubic-bezier(.2,.8,.2,1) .05s, opacity .4s ease .05s;">Qaraaoun · West Bekaa</span>
+  <a href="#menu" onClick="{{ onMnavMenu }}" data-cursor="link" style="display:flex; align-items:baseline; gap:16px; padding:13px 0; text-decoration:none; cursor:none; border-bottom:1px solid rgba(245,241,227,.13); opacity:{{ mnavLinkO }}; transform:{{ mnavLinkT }}; transition:transform .5s cubic-bezier(.2,.8,.2,1) .11s, opacity .4s ease .11s;">
+    <span style="font-family:'Manrope',sans-serif; font-weight:700; font-size:12px; letter-spacing:1px; color:#E8A44C;">01</span>
+    <span style="font-family:'Fraunces',serif; font-weight:600; font-size:clamp(34px,9vw,48px); line-height:1.12; color:#F9F5E9;">The Menu</span>
+  </a>
+  <a href="#events" onClick="{{ onMnavEvents }}" data-cursor="link" style="display:flex; align-items:baseline; gap:16px; padding:13px 0; text-decoration:none; cursor:none; border-bottom:1px solid rgba(245,241,227,.13); opacity:{{ mnavLinkO }}; transform:{{ mnavLinkT }}; transition:transform .5s cubic-bezier(.2,.8,.2,1) .17s, opacity .4s ease .17s;">
+    <span style="font-family:'Manrope',sans-serif; font-weight:700; font-size:12px; letter-spacing:1px; color:#E8A44C;">02</span>
+    <span style="font-family:'Fraunces',serif; font-weight:600; font-size:clamp(34px,9vw,48px); line-height:1.12; color:#F9F5E9;">Events &amp; Catering</span>
+  </a>
+  <a href="#outro" onClick="{{ onMnavVisit }}" data-cursor="link" style="display:flex; align-items:baseline; gap:16px; padding:13px 0; text-decoration:none; cursor:none; border-bottom:1px solid rgba(245,241,227,.13); opacity:{{ mnavLinkO }}; transform:{{ mnavLinkT }}; transition:transform .5s cubic-bezier(.2,.8,.2,1) .23s, opacity .4s ease .23s;">
+    <span style="font-family:'Manrope',sans-serif; font-weight:700; font-size:12px; letter-spacing:1px; color:#E8A44C;">03</span>
+    <span style="font-family:'Fraunces',serif; font-weight:600; font-style:italic; font-size:clamp(34px,9vw,48px); line-height:1.12; color:#F0D9A8;">Visit us</span>
+  </a>
+  <div style="display:flex; align-items:center; flex-wrap:wrap; gap:14px 26px; margin-top:30px; opacity:{{ mnavLinkO }}; transform:{{ mnavLinkT }}; transition:transform .5s cubic-bezier(.2,.8,.2,1) .3s, opacity .4s ease .3s;">
+    <a href="tel:+96171245911" data-cursor="link" style="display:inline-flex; align-items:center; gap:9px; font-family:'Manrope',sans-serif; font-weight:700; font-size:14px; color:#F5F1E3; text-decoration:none; cursor:none;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      +961 71 245 911
+    </a>
+    <a href="https://instagram.com/la.playa.blanca" target="_blank" rel="noopener" data-cursor="link" style="display:inline-flex; align-items:center; gap:9px; font-family:'Manrope',sans-serif; font-weight:700; font-size:14px; color:#F0D9A8; text-decoration:none; cursor:none;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/></svg>
+      @la.playa.blanca
+    </a>
+  </div>
+</div>
 
 <!-- ============ MAIN SCROLL WORLD ============ -->
 <main id="top" style="position:relative; z-index:5;">
@@ -642,6 +676,7 @@ class Component extends DCLogic {
       fanCenter: 3,
       cart: {},           // id -> { item, qty }
       cartOpen: false,
+      navOpen: false,     // mobile nav overlay
       detail: null,       // gallery detail overlay (item object)
       build: { base: 'crepe', sauce: 'nutella', toppings: [], cream: true },
       reduced: false,
@@ -681,11 +716,11 @@ class Component extends DCLogic {
   componentWillUnmount() { this._teardown(); }
   componentDidUpdate(prevProps, prevState) {
     // fan deck is driven directly from setState callbacks in _fanCycle / onFilterClick (DC prevState here is unreliable)
-    if (prevState.cartOpen !== this.state.cartOpen && this.lenis) {
-      try { this.state.cartOpen ? this.lenis.stop() : this.lenis.start(); } catch (e) {}
-    }
-    if (prevState.detail !== this.state.detail && this.lenis) {
-      try { this.state.detail ? this.lenis.stop() : this.lenis.start(); } catch (e) {}
+    // any overlay (cart / detail / mobile nav) locks page scroll; released when all are closed
+    var lockPrev = prevState.cartOpen || !!prevState.detail || prevState.navOpen;
+    var lockNow = this.state.cartOpen || !!this.state.detail || this.state.navOpen;
+    if (lockPrev !== lockNow && this.lenis) {
+      try { lockNow ? this.lenis.stop() : this.lenis.start(); } catch (e) {}
     }
     if (!prevState.detail && this.state.detail) this._animateDetailIn();
     if (prevState.build !== this.state.build) this._rollPrice();
@@ -982,7 +1017,7 @@ class Component extends DCLogic {
     // condense nav on small screens (keep logo + cart)
     var links = document.getElementById('nav-links');
     var wm = document.getElementById('nav-wordmark');
-    var navResp = function () { var w = window.innerWidth; if (links) links.style.display = w < 860 ? 'none' : 'flex'; if (wm) wm.style.display = w < 440 ? 'none' : 'flex'; };
+    var navResp = function () { var w = window.innerWidth; if (links) links.style.display = w < 860 ? 'none' : 'flex'; if (wm) wm.style.display = w < 440 ? 'none' : 'flex'; if (w >= 860 && self.state.navOpen) self.setState({ navOpen: false }); };
     navResp(); window.addEventListener('resize', navResp, { passive: true });
     var t = window.ScrollTrigger.create({
       start: 'top top-=90', end: 99999,
@@ -1692,6 +1727,9 @@ class Component extends DCLogic {
     // shared teal frond motif for the fan cards
     var frondBg = self._frondBg || (self._frondBg = self._frondSVG());
 
+    // mobile nav: close the overlay first, then glide to the section (lenis restarts on close)
+    var mnavGo = function (sel) { return function (e) { e && e.preventDefault(); self.setState({ navOpen: false }, function () { self._scrollTo(sel); }); }; };
+
     // fan deck: the selected category, decorated as typography cards
     var menuCat = st.menuCat;
     var fanItems = self._catItems(menuCat).map(function (it) { return self._decorate(it); });
@@ -1745,8 +1783,20 @@ class Component extends DCLogic {
       // nav / cart badge
       cartCount: count,
       cartBadgeDisplay: count > 0 ? 'flex' : 'none',
-      onOpenCart: function () { self.setState({ cartOpen: true }); },
+      onOpenCart: function () { self.setState({ cartOpen: true, navOpen: false }); },
       onCloseCart: function () { self.setState({ cartOpen: false }); },
+
+      // mobile nav overlay (burger <860px)
+      mnavOpacity: st.navOpen ? '1' : '0',
+      mnavEvents: st.navOpen ? 'auto' : 'none',
+      mnavLinkO: st.navOpen ? 1 : 0,
+      mnavLinkT: st.navOpen ? 'none' : 'translateY(26px)',
+      burgerMenuDisplay: st.navOpen ? 'none' : 'block',
+      burgerCloseDisplay: st.navOpen ? 'block' : 'none',
+      onToggleNav: function () { self.setState({ navOpen: !self.state.navOpen }); },
+      onMnavMenu: mnavGo('#menu'),
+      onMnavEvents: mnavGo('#events'),
+      onMnavVisit: mnavGo('#outro'),
       onNavHome: function (e) { e && e.preventDefault(); self._scrollTo('#top'); },
       onNavMenu: function (e) { e && e.preventDefault(); self._scrollTo('#menu'); },
       onNavGallery: function (e) { e && e.preventDefault(); self._scrollTo('#gallery'); },
