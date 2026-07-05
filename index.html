@@ -408,14 +408,22 @@
 
     <!-- ===== EVENTS & CATERING · inquiry ===== -->
     <section id="events" data-screen-label="Events &amp; Catering" style="position:relative; z-index:2; padding:clamp(50px,8vh,110px) clamp(16px,5vw,60px) clamp(60px,9vh,120px); max-width:1160px; margin:0 auto;">
-      <!-- full-bleed beachside-aisle backdrop; the deck scroll-dollies toward the arch (see _initEvents) -->
-      <div aria-hidden="true" style="position:absolute; left:50%; top:0; bottom:0; width:100vw; transform:translateX(-50%); z-index:-1; overflow:hidden;">
-        <img id="events-bg" src="assets/events-aisle.jpg?v=1" alt="" decoding="async" loading="lazy" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 44%; transform:scale(1.06); will-change:transform;">
-        <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(12,44,54,.60) 0%, rgba(12,44,54,.30) 24%, rgba(18,63,77,.20) 52%, rgba(12,44,54,.20) 80%, rgba(12,44,54,.10) 100%);"></div>
-        <!-- foreground palms (nearest plane): sweep past faster than the backdrop as you scroll in -->
-        <img id="events-fg" src="assets/events-palms.webp?v=1" alt="" decoding="async" loading="lazy" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 44%; transform:scale(1); filter:blur(1.4px); will-change:transform; pointer-events:none;">
-        <!-- vignette that opens as you scroll in, drawing the eye down the aisle to the arch/form -->
-        <div id="events-vig" aria-hidden="true" style="position:absolute; inset:0; background:radial-gradient(125% 95% at 50% 40%, rgba(12,44,54,0) 42%, rgba(12,44,54,.5) 100%); opacity:.7; pointer-events:none;"></div>
+      <!-- full-bleed beachside-aisle backdrop; the deck scroll-dollies toward the arch (see _initEvents).
+           The parallax layers live in a STICKY viewport-sized stage, not stretched over the whole
+           (very tall) section: a section-height image at 3x DPR blows past mobile GPU texture
+           limits, and animating scale on it made tiles re-rasterize out of sync => the visual
+           glitch/tearing on phones. One-screen-tall layers composite cleanly.
+           overflow:clip + clip-path (NOT overflow:hidden — that would turn this wrapper into the
+           sticky child's scrollport and kill the stick); no transform here for the same reason. -->
+      <div aria-hidden="true" style="position:absolute; left:calc(50% - 50vw); top:0; bottom:0; width:100vw; z-index:-1; overflow:clip; clip-path:inset(0);">
+        <div id="events-stage" style="position:sticky; top:0; height:100vh; overflow:hidden;">
+          <img id="events-bg" src="assets/events-aisle.jpg?v=1" alt="" decoding="async" loading="lazy" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 44%; transform:scale(1.06); will-change:transform;">
+          <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(12,44,54,.60) 0%, rgba(12,44,54,.30) 24%, rgba(18,63,77,.20) 52%, rgba(12,44,54,.20) 80%, rgba(12,44,54,.10) 100%);"></div>
+          <!-- foreground palms (nearest plane): sweep past faster than the backdrop as you scroll in -->
+          <img id="events-fg" src="assets/events-palms.webp?v=1" alt="" decoding="async" loading="lazy" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 44%; transform:scale(1); filter:blur(1.4px); will-change:transform; pointer-events:none;">
+          <!-- vignette that opens as you scroll in, drawing the eye down the aisle to the arch/form -->
+          <div id="events-vig" aria-hidden="true" style="position:absolute; inset:0; background:radial-gradient(125% 95% at 50% 40%, rgba(12,44,54,0) 42%, rgba(12,44,54,.5) 100%); opacity:.7; pointer-events:none;"></div>
+        </div>
       </div>
       <div id="events-content" style="position:relative;">
       <div data-events-in style="text-align:center; max-width:680px; margin:0 auto clamp(30px,4.5vh,52px); position:relative;">
