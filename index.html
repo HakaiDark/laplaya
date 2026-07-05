@@ -1155,7 +1155,10 @@ class Component extends DCLogic {
         }
       } });
       if (title) tl.fromTo(title, { '--p': '0%', xPercent: idx % 2 ? 7 : -7 }, { '--p': '100%', xPercent: idx % 2 ? -11 : 11, ease: 'none', duration: 1.5 }, 0);
-      tl.from(cards, { yPercent: 26, autoAlpha: 0, rotate: -2.5, stagger: 0.14, ease: 'power3.out', duration: 0.7 }, 0.25);
+      // fromTo, NOT from: with invalidateOnRefresh, a from() re-captures its destination from the
+      // DOM after the boot refresh — by then immediateRender has already hidden the cards, so it
+      // recorded 0 -> 0 and the cards never appeared. Explicit endpoints are invalidate-proof.
+      tl.fromTo(cards, { yPercent: 26, autoAlpha: 0, rotate: -2.5 }, { yPercent: 0, autoAlpha: 1, rotate: 0, stagger: 0.14, ease: 'power3.out', duration: 0.7 }, 0.25);
       tl.to({}, { duration: 0.6 });
       if (!last) tl.to(cards, { autoAlpha: 0, yPercent: -18, stagger: 0.05, duration: 0.55 });
       if (tl.scrollTrigger) self._triggers.push(tl.scrollTrigger);
