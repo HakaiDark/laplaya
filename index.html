@@ -44,7 +44,7 @@
   #lpb-nav{ padding-top:calc(16px + env(safe-area-inset-top, 0px)) !important; }
   /* fan deck: we handle horizontal swipes ourselves — tell the browser to only own vertical pans
      so the first touchmove is still cancelable and the gesture never fights page scroll */
-  #fan-deck{ touch-action:pan-y; }
+  #fan-deck{ touch-action:pan-y; user-select:none; -webkit-user-select:none; }
   /* burger appears exactly where the nav links hide (see navResp, 860px) */
   @media (max-width:859px){ #nav-burger{ display:grid !important; } }
   #menu-pills::-webkit-scrollbar{ display:none; }
@@ -747,7 +747,8 @@ class Component extends DCLogic {
     try { this._three && this._three.renderer.dispose(); } catch (e) {}
     try { this._montage && this._montage.kill(); } catch (e) {}
     try { window.removeEventListener('resize', this._fanResize); } catch (e) {}
-    try { var s = this._fanSwipe; if (s) { s.el.removeEventListener('touchstart', s.start); s.el.removeEventListener('touchmove', s.move); s.el.removeEventListener('touchend', s.end); s.el.removeEventListener('touchcancel', s.end); this._fanSwipe = null; } } catch (e) {}
+    try { var s = this._fanSwipe; if (s) { s.el.removeEventListener('touchstart', s.start); s.el.removeEventListener('touchmove', s.move); s.el.removeEventListener('touchend', s.end); s.el.removeEventListener('touchcancel', s.end); s.el.removeEventListener('mousedown', s.mdown); window.removeEventListener('mousemove', s.mmove); window.removeEventListener('mouseup', s.mup); this._fanSwipe = null; } } catch (e) {}
+    try { if (this._fanSeq) { clearInterval(this._fanSeq); this._fanSeq = null; } } catch (e) {}
   }
 
   // ---------- palm-frond silhouettes (blurred shade) ----------
@@ -1673,7 +1674,23 @@ class Component extends DCLogic {
     deck.addEventListener('touchmove', onMove, { passive: false });
     deck.addEventListener('touchend', onEnd, { passive: true });
     deck.addEventListener('touchcancel', onEnd, { passive: true });
-    this._fanSwipe = { el: deck, start: onStart, move: onMove, end: onEnd };
+    // mouse drag = the laptop swipe. A real drag sets _fanDragged for a beat so the click that
+    // fires on release doesn't ALSO browse/add.
+    var mDown = false, mX = 0;
+    var onMDown = function (e) { if (e.button !== 0) return; mDown = true; mX = e.clientX; };
+    var onMMove = function (e) { if (mDown && Math.abs(e.clientX - mX) > 8) e.preventDefault(); };
+    var onMUp = function (e) {
+      if (!mDown) return; mDown = false;
+      var dx = e.clientX - mX;
+      if (Math.abs(dx) < THRESH) return;
+      self._fanDragged = true;
+      setTimeout(function () { self._fanDragged = false; }, 120);
+      self._fanCycle(dx < 0 ? 'right' : 'left');
+    };
+    deck.addEventListener('mousedown', onMDown);
+    window.addEventListener('mousemove', onMMove);
+    window.addEventListener('mouseup', onMUp);
+    this._fanSwipe = { el: deck, start: onStart, move: onMove, end: onEnd, mdown: onMDown, mmove: onMMove, mup: onMUp };
   }
   _fanLayout(firstMount, isResize) {
     var self = this, gsap = window.gsap;
@@ -1747,11 +1764,21 @@ class Component extends DCLogic {
     this._fanHover = { enter: enter, leave: leave };
   }
   _fanCycle(dir) { this._fanCycleBy(dir === 'right' ? 1 : -1); }
+  // multi-step cycles play as a quick one-card-at-a-time sequence — a single jump of 2-3 slots
+  // moved every card simultaneously and read as "throwing multiple cards" instead of paging
   _fanCycleBy(delta) {
     var total = this._catItems(this.state.menuCat).length;
     if (total < 2 || !delta) return;
-    var c = this.state.fanCenter;
-    this.setState({ fanCenter: ((c + delta) % total + total) % total });
+    var self = this;
+    if (this._fanSeq) { clearInterval(this._fanSeq); this._fanSeq = null; }
+    var step = delta > 0 ? 1 : -1, left = Math.min(Math.abs(delta), total - 1);
+    var tick = function () {
+      var c = self.state.fanCenter;
+      self.setState({ fanCenter: ((c + step) % total + total) % total });
+      if (--left <= 0 && self._fanSeq) { clearInterval(self._fanSeq); self._fanSeq = null; }
+    };
+    tick();
+    if (left > 0) this._fanSeq = setInterval(tick, 160);
   }
   // which visible slot a card occupies right now (slot undefined => card is hidden)
   _fanSlotOf(id) {
@@ -1793,10 +1820,15 @@ class Component extends DCLogic {
     // Transitions promote layers transiently, which is all the animation needs. Hidden cards get
     // visibility:hidden so the engine skips them entirely (it flips after the fade via transition).
     var _fanBase = 'position:absolute; left:50%; top:50%; width:212px; height:300px; margin:-150px 0 0 -106px; cursor:none; transition:transform .55s cubic-bezier(.2,.8,.2,1), opacity .45s ease, visibility .45s;';
+    var _fanTotal = fanItems.length;
     fanItems.forEach(function (it, i) {
       var slot = _vmap[i];
       if (slot === undefined) {
-        it.slotStyle = _fanBase + ' opacity:0; visibility:hidden; pointer-events:none; z-index:0; transform:scale(.4);';
+        // exit/enter via the deck EDGES, matching travel direction — parking hidden cards at the
+        // centre (old scale(.4)) made each page-turn look like cards flying into the middle
+        var fwd = ((i - fanCenter) % _fanTotal + _fanTotal) % _fanTotal;
+        var side = fwd <= _fanTotal / 2 ? 1 : -1;
+        it.slotStyle = _fanBase + ' opacity:0; visibility:hidden; pointer-events:none; z-index:0; transform:translate(' + (side * 390 * _mult).toFixed(0) + 'px,' + (70 * _mult).toFixed(0) + 'px) rotate(' + (side * 27) + 'deg) scale(.66);';
       } else {
         var cf = self._fanSlotConfig(_slotCount, slot);
         it.slotStyle = _fanBase + ' opacity:1; visibility:visible; pointer-events:auto; z-index:' + cf.z + '; transform:translate(' + (cf.x * _mult).toFixed(1) + 'px,' + (cf.y * _mult).toFixed(1) + 'px) rotate(' + cf.rot + 'deg) scale(' + cf.sc + ');';
@@ -1889,11 +1921,13 @@ class Component extends DCLogic {
       // Adding is exclusively the Add pill (onFanAdd).
       onFanBrowse: function (e) {
         if (e) { e.preventDefault && e.preventDefault(); }
+        if (self._fanDragged) return; // this click is the tail of a mouse drag
         var pos = self._fanSlotOf(e.currentTarget.getAttribute('data-id'));
         if (pos && pos.slot !== undefined && pos.slot !== pos.centerSlot) self._fanCycleBy(pos.slot - pos.centerSlot);
       },
       onFanAdd: function (e) {
         if (e) { e.preventDefault && e.preventDefault(); e.stopPropagation && e.stopPropagation(); }
+        if (self._fanDragged) return;
         var it = self._byId(e.currentTarget.getAttribute('data-id'));
         if (it) self.addToCart(it, e);
       },
