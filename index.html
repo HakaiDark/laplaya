@@ -365,6 +365,8 @@
       <div aria-hidden="true" style="position:absolute; left:50%; top:0; bottom:0; width:100vw; transform:translateX(-50%); z-index:-1; overflow:hidden;">
         <img id="events-bg" src="assets/events-aisle.jpg?v=1" alt="" decoding="async" loading="lazy" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 44%; transform:scale(1.06); will-change:transform;">
         <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(12,44,54,.60) 0%, rgba(12,44,54,.30) 24%, rgba(18,63,77,.20) 52%, rgba(12,44,54,.20) 80%, rgba(12,44,54,.10) 100%);"></div>
+        <!-- foreground palms (nearest plane): sweep past faster than the backdrop as you scroll in -->
+        <img id="events-fg" src="assets/events-palms.webp?v=1" alt="" decoding="async" loading="lazy" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 44%; transform:scale(1); filter:blur(1.4px); will-change:transform; pointer-events:none;">
       </div>
       <div data-events-in style="text-align:center; max-width:680px; margin:0 auto clamp(30px,4.5vh,52px); position:relative;">
         <span style="display:inline-flex; align-items:center; padding:8px 16px; border-radius:999px; background:#E7607A; border:1px solid rgba(245,241,227,.4); color:#FFF3F5; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px; letter-spacing:2.6px; text-transform:uppercase; box-shadow:0 6px 20px rgba(12,44,54,.35);">Events &amp; Catering</span>
@@ -1178,11 +1180,16 @@ class Component extends DCLogic {
     var self = this, gsap = window.gsap;
     var sec = document.getElementById('events'); if (!sec) return;
     if (gsap && !self.reduced) gsap.from(sec.querySelectorAll('[data-events-in]'), { autoAlpha: 0, y: 32, stagger: 0.09, duration: 0.6, ease: 'power2.out', scrollTrigger: { trigger: sec, start: 'top 70%' } });
-    // scroll-dolly the aisle backdrop toward the arch — scrolling down feels like walking up the aisle
+    // layered dolly: backdrop eases toward the arch while the foreground palms sweep past faster => depth of "walking up the aisle"
     var bg = document.getElementById('events-bg');
     if (bg && gsap && !self.reduced) {
-      var t = gsap.fromTo(bg, { scale: 1.06 }, { scale: 1.26, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: true } });
+      var t = gsap.fromTo(bg, { scale: 1.06 }, { scale: 1.24, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: true } });
       if (t.scrollTrigger) self._triggers.push(t.scrollTrigger);
+    }
+    var fg = document.getElementById('events-fg');
+    if (fg && gsap && !self.reduced) {
+      var tf = gsap.fromTo(fg, { scale: 1, yPercent: 0 }, { scale: 1.6, yPercent: -5, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: true } });
+      if (tf.scrollTrigger) self._triggers.push(tf.scrollTrigger);
     }
     var form = document.getElementById('events-form'); if (!form || form._bound) return; form._bound = true;
     var ok = document.getElementById('events-success');
