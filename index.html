@@ -353,7 +353,7 @@
       <!-- full-bleed beachside-aisle backdrop; the deck scroll-dollies toward the arch (see _initEvents) -->
       <div aria-hidden="true" style="position:absolute; left:50%; top:0; bottom:0; width:100vw; transform:translateX(-50%); z-index:-1; overflow:hidden;">
         <img id="events-bg" src="assets/events-aisle.jpg?v=1" alt="" decoding="async" loading="lazy" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 44%; transform:scale(1.06); will-change:transform;">
-        <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(12,44,54,.60) 0%, rgba(12,44,54,.30) 24%, rgba(18,63,77,.22) 52%, rgba(12,44,54,.42) 78%, rgba(12,44,54,.68) 100%);"></div>
+        <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(12,44,54,.60) 0%, rgba(12,44,54,.30) 24%, rgba(18,63,77,.20) 52%, rgba(12,44,54,.20) 80%, rgba(12,44,54,.10) 100%);"></div>
       </div>
       <div data-events-in style="text-align:center; max-width:680px; margin:0 auto clamp(30px,4.5vh,52px); position:relative;">
         <span style="display:inline-flex; align-items:center; padding:8px 16px; border-radius:999px; background:#E7607A; border:1px solid rgba(245,241,227,.4); color:#FFF3F5; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px; letter-spacing:2.6px; text-transform:uppercase; box-shadow:0 6px 20px rgba(12,44,54,.35);">Events &amp; Catering</span>
@@ -420,9 +420,20 @@
       </div>
     </section>
 
-    <!-- wavy sand edge spilling over the outro video -->
-    <div aria-hidden="true" style="position:absolute; bottom:0; left:0; right:0; z-index:1; line-height:0; transform:translateY(99%);">
-      <svg viewBox="0 0 1440 90" width="100%" height="auto" preserveAspectRatio="none" style="display:block;"><path d="M0 0 L0 44 C 200 78 380 80 560 52 C 740 24 900 18 1080 40 C 1240 60 1360 66 1440 50 L1440 0 Z" fill="#F5F1E3"/></svg>
+    <!-- shoreline: wavy crest bites up into the aisle photo (no hard edge) and the sand melts down into the outro -->
+    <div aria-hidden="true" style="position:absolute; bottom:0; left:0; right:0; z-index:2; line-height:0; height:150px; transform:translateY(52%); pointer-events:none;">
+      <svg viewBox="0 0 1440 150" width="100%" height="100%" preserveAspectRatio="none" style="display:block;">
+        <defs>
+          <linearGradient id="sandBack" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F2EAD6" stop-opacity=".82"/><stop offset=".55" stop-color="#EBDFC0" stop-opacity=".34"/><stop offset="1" stop-color="#EBDFC0" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="sandFront" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#E7D6AE" stop-opacity=".97"/><stop offset=".5" stop-color="#E4D2A6" stop-opacity=".55"/><stop offset="1" stop-color="#E4D2A6" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M0 30 C 300 6 520 58 760 38 C 1000 18 1180 56 1440 28 L1440 150 L0 150 Z" fill="url(#sandBack)"/>
+        <path d="M0 54 C 260 84 500 34 760 60 C 1020 86 1220 44 1440 68 L1440 150 L0 150 Z" fill="url(#sandFront)"/>
+      </svg>
     </div>
   </div>
   <!-- /#cream-world -->
