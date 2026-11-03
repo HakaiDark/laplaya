@@ -8,7 +8,7 @@
       "items": [
         {
           "name": "Nutella",
-          "price": 7,
+          "price": 7.5,
           "description": "Silky hazelnut–cocoa, warm and generous",
           "photo": "/uploads/nutella-mvpcrnl4mwnl.jpg",
           "available": true,
