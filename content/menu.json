@@ -248,7 +248,7 @@
       "items": [
         {
           "name": "Nutella",
-          "price": 6.5,
+          "price": 7.5,
           "description": "Silky hazelnut–cocoa, warm and generous",
           "photo": "",
           "available": true,
@@ -258,7 +258,7 @@
         },
         {
           "name": "Oreo",
-          "price": 7,
+          "price": 8,
           "description": "Crushed cookies-and-cream, dark and dreamy",
           "photo": "",
           "available": true,
@@ -266,7 +266,7 @@
         },
         {
           "name": "Kinder",
-          "price": 7,
+          "price": 8,
           "description": "Soft milk-chocolate Kinder, pure nostalgia",
           "photo": "",
           "available": true,
@@ -276,7 +276,7 @@
         },
         {
           "name": "Snickers",
-          "price": 7,
+          "price": 8,
           "description": "Caramel, peanuts and chocolate, piled on",
           "photo": "",
           "available": true,
@@ -286,7 +286,7 @@
         },
         {
           "name": "Brownie",
-          "price": 7,
+          "price": 8,
           "description": "Fudgy brownie chunks, deep chocolate",
           "photo": "",
           "available": true,
@@ -294,7 +294,7 @@
         },
         {
           "name": "Fruits",
-          "price": 8,
+          "price": 8.5,
           "description": "Fresh seasonal fruit, bright and juicy",
           "photo": "",
           "available": true,
@@ -312,7 +312,7 @@
         },
         {
           "name": "Arequipe",
-          "price": 6,
+          "price": 8,
           "description": "Golden dulce de leche, slow and sweet",
           "photo": "",
           "available": true,
@@ -320,7 +320,7 @@
         },
         {
           "name": "Crispy",
-          "price": 8,
+          "price": 9,
           "description": "Crunchy layered crisp, extra texture",
           "photo": "",
           "available": true,
@@ -328,7 +328,7 @@
         },
         {
           "name": "Lotus",
-          "price": 7.5,
+          "price": 8,
           "description": "Caramelised Biscoff, spiced and smooth",
           "photo": "",
           "available": true,
