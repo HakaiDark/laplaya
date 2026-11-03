@@ -104,7 +104,7 @@
       "items": [
         {
           "name": "Nutella",
-          "price": 6,
+          "price": 7,
           "description": "Silky hazelnut–cocoa, warm and generous",
           "photo": "",
           "available": true,
@@ -114,7 +114,7 @@
         },
         {
           "name": "Oreo",
-          "price": 7,
+          "price": 7.5,
           "description": "Crushed cookies-and-cream, dark and dreamy",
           "photo": "",
           "available": true,
@@ -122,7 +122,7 @@
         },
         {
           "name": "Kinder",
-          "price": 7,
+          "price": 7.5,
           "description": "Soft milk-chocolate Kinder, pure nostalgia",
           "photo": "",
           "available": true,
@@ -132,7 +132,7 @@
         },
         {
           "name": "Snickers",
-          "price": 6.5,
+          "price": 7.5,
           "description": "Caramel, peanuts and chocolate, piled on",
           "photo": "",
           "available": true,
@@ -142,7 +142,7 @@
         },
         {
           "name": "Brownie",
-          "price": 6.5,
+          "price": 7.5,
           "description": "Fudgy brownie chunks, deep chocolate",
           "photo": "",
           "available": true,
@@ -150,7 +150,7 @@
         },
         {
           "name": "Fruits",
-          "price": 7,
+          "price": 7.5,
           "description": "Fresh seasonal fruit, bright and juicy",
           "photo": "",
           "available": true,
@@ -158,7 +158,7 @@
         },
         {
           "name": "Fettuccine",
-          "price": 6.5,
+          "price": 7.5,
           "description": "Ribboned crepe, a playful house cut",
           "photo": "",
           "available": true,
@@ -166,7 +166,7 @@
         },
         {
           "name": "Playa Blanca",
-          "price": 7,
+          "price": 8,
           "description": "The house signature — our full spread",
           "photo": "",
           "available": true,
@@ -176,7 +176,7 @@
         },
         {
           "name": "Arequipe",
-          "price": 6,
+          "price": 7,
           "description": "Golden dulce de leche, slow and sweet",
           "photo": "",
           "available": true,
@@ -184,7 +184,7 @@
         },
         {
           "name": "Crispy",
-          "price": 7,
+          "price": 8,
           "description": "Crunchy layered crisp, extra texture",
           "photo": "",
           "available": true,
@@ -192,7 +192,7 @@
         },
         {
           "name": "Barbie",
-          "price": 6.5,
+          "price": 7.5,
           "description": "Pretty in pink, strawberry sweet",
           "photo": "",
           "available": true,
@@ -200,7 +200,7 @@
         },
         {
           "name": "Flio",
-          "price": 6,
+          "price": 7.5,
           "description": "A house twist, lightly indulgent",
           "photo": "",
           "available": true,
@@ -208,7 +208,7 @@
         },
         {
           "name": "Lotus",
-          "price": 6.5,
+          "price": 7.5,
           "description": "Caramelised Biscoff, spiced and smooth",
           "photo": "",
           "available": true,
@@ -216,7 +216,7 @@
         },
         {
           "name": "Sushi",
-          "price": 5,
+          "price": 7.5,
           "description": "Rolled and sliced, crepe “sushi” style",
           "photo": "",
           "available": true,
@@ -224,7 +224,7 @@
         },
         {
           "name": "Marshmallow",
-          "price": 6,
+          "price": 7.5,
           "description": "Toasted marshmallow, pillowy soft",
           "photo": "",
           "available": true,
@@ -232,7 +232,7 @@
         },
         {
           "name": "Sushi Brownie",
-          "price": 6.5,
+          "price": 8,
           "description": "Rolled crepe sushi, brownie centre",
           "photo": "",
           "available": true,
