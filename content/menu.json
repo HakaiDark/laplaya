@@ -462,7 +462,7 @@
       "items": [
         {
           "name": "Strawberry",
-          "price": 3,
+          "price": 4,
           "description": "Sun-ripe strawberry, cool and creamy",
           "photo": "",
           "available": true,
@@ -470,7 +470,7 @@
         },
         {
           "name": "Mango",
-          "price": 3,
+          "price": 4,
           "description": "Tropical mango, thick and golden",
           "photo": "",
           "available": true,
@@ -478,7 +478,7 @@
         },
         {
           "name": "Caramel",
-          "price": 3,
+          "price": 4,
           "description": "Buttery caramel, a smooth swirl",
           "photo": "",
           "available": true,
@@ -486,7 +486,7 @@
         },
         {
           "name": "Nutella with strawberry",
-          "price": 3.5,
+          "price": 4,
           "description": "Hazelnut–cocoa meets fresh strawberry",
           "photo": "",
           "available": true,
@@ -496,7 +496,7 @@
         },
         {
           "name": "Blueberry",
-          "price": 3,
+          "price": 4,
           "description": "Wild blueberry, tart and bright",
           "photo": "",
           "available": true,
@@ -504,7 +504,7 @@
         },
         {
           "name": "Banana",
-          "price": 3,
+          "price": 4,
           "description": "Sweet banana, mellow and creamy",
           "photo": "",
           "available": true,
