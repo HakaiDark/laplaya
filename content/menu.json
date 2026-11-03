@@ -632,7 +632,7 @@
       "items": [
         {
           "name": "Lotus",
-          "price": 3,
+          "price": 4,
           "description": "Caramelised Biscoff, spiced and smooth",
           "photo": "",
           "available": true,
@@ -640,7 +640,7 @@
         },
         {
           "name": "Nutella",
-          "price": 3,
+          "price": 4,
           "description": "Silky hazelnut–cocoa, warm and generous",
           "photo": "",
           "available": true,
@@ -650,7 +650,7 @@
         },
         {
           "name": "Red velvet",
-          "price": 3,
+          "price": 4,
           "description": "Red velvet shake, cocoa and cream",
           "photo": "",
           "available": true,
@@ -658,7 +658,7 @@
         },
         {
           "name": "Kinder",
-          "price": 3,
+          "price": 4,
           "description": "Soft milk-chocolate Kinder, pure nostalgia",
           "photo": "",
           "available": true,
@@ -668,7 +668,7 @@
         },
         {
           "name": "Snickers",
-          "price": 3,
+          "price": 4,
           "description": "Caramel, peanuts and chocolate, piled on",
           "photo": "",
           "available": true,
@@ -678,7 +678,7 @@
         },
         {
           "name": "Marshmallow",
-          "price": 3,
+          "price": 4,
           "description": "Toasted marshmallow, pillowy soft",
           "photo": "",
           "available": true,
@@ -686,7 +686,7 @@
         },
         {
           "name": "Bubble Gum",
-          "price": 3,
+          "price": 4,
           "description": "Candy-pink bubble-gum shake",
           "photo": "",
           "available": true,
@@ -694,7 +694,7 @@
         },
         {
           "name": "Arequipe",
-          "price": 3,
+          "price": 4.5,
           "description": "Golden dulce de leche, slow and sweet",
           "photo": "",
           "available": true,
@@ -702,7 +702,7 @@
         },
         {
           "name": "Caramel",
-          "price": 3,
+          "price": 4,
           "description": "Buttery caramel, a smooth swirl",
           "photo": "",
           "available": true,
@@ -710,7 +710,7 @@
         },
         {
           "name": "Cookies",
-          "price": 3,
+          "price": 4,
           "description": "Cookies blended into thick cream",
           "photo": "",
           "available": true,
@@ -718,7 +718,7 @@
         },
         {
           "name": "Mocha",
-          "price": 3,
+          "price": 4,
           "description": "Coffee and chocolate, a smooth buzz",
           "photo": "",
           "available": true,
@@ -726,7 +726,7 @@
         },
         {
           "name": "Cerlac",
-          "price": 3,
+          "price": 4.5,
           "description": "Malted cereal shake, comforting",
           "photo": "",
           "available": true,
@@ -734,7 +734,7 @@
         },
         {
           "name": "Trix",
-          "price": 3,
+          "price": 5,
           "description": "Fruity cereal shake, full of colour",
           "photo": "",
           "available": true,
@@ -742,7 +742,7 @@
         },
         {
           "name": "Playa Blanca",
-          "price": 3,
+          "price": 4.5,
           "description": "The house signature — our full spread",
           "photo": "",
           "available": true,
