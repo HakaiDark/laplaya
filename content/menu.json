@@ -18,7 +18,7 @@
         },
         {
           "name": "Oreo",
-          "price": 7,
+          "price": 8,
           "description": "Crushed cookies-and-cream, dark and dreamy",
           "photo": "/uploads/oreo-mvpcs0mv6v4z.jpg",
           "available": true,
@@ -26,7 +26,7 @@
         },
         {
           "name": "Kinder",
-          "price": 6.5,
+          "price": 8,
           "description": "Soft milk-chocolate Kinder, pure nostalgia",
           "photo": "/uploads/kinder-mvpcsbf4u9kq.jpg",
           "available": true,
@@ -36,7 +36,7 @@
         },
         {
           "name": "Snickers",
-          "price": 6.5,
+          "price": 8,
           "description": "Caramel, peanuts and chocolate, piled on",
           "photo": "/uploads/snickers-mvpcsi8lms0q.jpg",
           "available": true,
@@ -46,7 +46,7 @@
         },
         {
           "name": "Brownie",
-          "price": 6.5,
+          "price": 8,
           "description": "Fudgy brownie chunks, deep chocolate",
           "photo": "/uploads/brownie-mvpcsq79ude7.jpg",
           "available": true,
@@ -54,7 +54,7 @@
         },
         {
           "name": "Playa Blanca",
-          "price": 8.5,
+          "price": 10,
           "description": "The house signature — our full spread",
           "photo": "/uploads/playa-blanca-mvpcsywatd86.jpg",
           "available": true,
@@ -64,7 +64,7 @@
         },
         {
           "name": "Arequipe",
-          "price": 5,
+          "price": 8,
           "description": "Golden dulce de leche, slow and sweet",
           "photo": "/uploads/arequipe-mvpct5lm51tj.jpg",
           "available": true,
@@ -72,7 +72,7 @@
         },
         {
           "name": "Crispy",
-          "price": 7,
+          "price": 8.5,
           "description": "Crunchy layered crisp, extra texture",
           "photo": "/uploads/crispy-mvpctcnxyxhu.jpg",
           "available": true,
@@ -80,7 +80,7 @@
         },
         {
           "name": "Lotus",
-          "price": 7.5,
+          "price": 8,
           "description": "Caramelised Biscoff, spiced and smooth",
           "photo": "/uploads/lotus-mvpctj062eb4.jpg",
           "available": true,
@@ -88,7 +88,7 @@
         },
         {
           "name": "Fruits",
-          "price": 7.5,
+          "price": 8.5,
           "description": "Fresh seasonal fruit, bright and juicy",
           "photo": "/uploads/fruits-mvpctpcjv039.jpg",
           "available": true,
