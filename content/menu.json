@@ -536,7 +536,7 @@
         },
         {
           "name": "Apple",
-          "price": 3,
+          "price": 4,
           "description": "Crisp pressed apple, clean finish",
           "photo": "",
           "available": true,
@@ -544,7 +544,7 @@
         },
         {
           "name": "Strawberry",
-          "price": 3.5,
+          "price": 4,
           "description": "Sun-ripe strawberry, cool and creamy",
           "photo": "",
           "available": true,
@@ -568,7 +568,7 @@
         },
         {
           "name": "Cocktail juice fresh",
-          "price": 4,
+          "price": 5,
           "description": "A mixed fresh-juice cocktail",
           "photo": "",
           "available": true,
@@ -576,7 +576,7 @@
         },
         {
           "name": "Cocktail pieces & avocado",
-          "price": 6,
+          "price": 7,
           "description": "Fruit pieces with creamy avocado",
           "photo": "",
           "available": true,
@@ -584,7 +584,7 @@
         },
         {
           "name": "Orange & strawberry",
-          "price": 3.5,
+          "price": 4.5,
           "description": "Orange and strawberry, pressed together",
           "photo": "",
           "available": true,
@@ -592,7 +592,7 @@
         },
         {
           "name": "Banana with milk",
-          "price": 3.5,
+          "price": 4,
           "description": "Banana blended with cold milk",
           "photo": "",
           "available": true,
@@ -600,7 +600,7 @@
         },
         {
           "name": "Blue hawaii",
-          "price": 4,
+          "price": 5,
           "description": "Tropical blue cooler, beach-day bright",
           "photo": "",
           "available": true,
@@ -616,7 +616,7 @@
         },
         {
           "name": "Polo fresh",
-          "price": 3.5,
+          "price": 4,
           "description": "A chilled house cooler",
           "photo": "",
           "available": true,
